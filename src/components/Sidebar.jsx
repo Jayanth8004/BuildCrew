@@ -1,0 +1,157 @@
+import React from 'react';
+
+export default function Sidebar({ activeView, setActiveView, onOpenPostProject }) {
+  const platformNav = [
+    { id: 'discover-projects', label: 'Discover Projects', icon: 'explore' },
+    { id: 'hackathons', label: 'Hackathons', icon: 'terminal' },
+    { id: 'find-builders', label: 'Find Teammates', icon: 'group_add' },
+  ];
+
+  const myWorkNav = [
+    { id: 'my-projects', label: 'My Projects', icon: 'rocket_launch' },
+    { id: 'my-applications', label: 'My Applications', icon: 'assignment' },
+    { id: 'my-teams', label: 'My Teams', icon: 'diversity_3' },
+  ];
+
+  const bottomNav = [
+    { id: 'settings', label: 'Settings', icon: 'settings' },
+    { id: 'profile', label: 'Profile', icon: 'account_circle' },
+  ];
+
+  const handleNavClick = (id) => {
+    setActiveView(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <aside className="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none">
+      <div className="flex flex-col">
+        {/* Brand / Logo */}
+        <div 
+          onClick={() => handleNavClick('discover-projects')}
+          className="h-16 px-space-lg flex items-center gap-space-sm cursor-pointer hover:opacity-90 transition-opacity"
+        >
+          <img 
+            alt="BuildCrew Logo" 
+            className="w-8 h-8 rounded-lg object-cover shadow-[0_1px_3px_rgba(15,23,42,0.08)] shrink-0" 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzNQdQlI_aqQ-zvBj2BqYI-DhIipISUabNH-uPjX4-v0V7jTZYdL6vBy9I-AvqFYORr2VZISaey_S8MTN96fca0RUMBx-jPpc6KmQgV0OorQBRhZsjUwbMMJ0JmPEVE0LHHvpPjGS1Xu5JsDsBjwPjOfuMOIe2uwyIvcxBtPwXx_TXtCKQigQ3ttQ478qdSFTFM0GWczWxAlfr3dsX4sO6-lpwk9Kg6CSinuhDw-OWDat-6-TvFkra"
+          />
+          <div className="flex flex-col">
+            <span className="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight leading-none">
+              BuildCrew
+            </span>
+            <span className="font-label-sm text-label-sm text-on-surface-variant">
+              Campus Collab Engine
+            </span>
+          </div>
+        </div>
+
+        {/* Post Project Action Button */}
+        <div className="px-space-md py-space-sm">
+          <button 
+            type="button"
+            onClick={onOpenPostProject}
+            className="w-full flex items-center justify-center gap-space-xs py-2.5 px-space-md rounded-xl bg-primary text-on-primary font-title-sm text-title-sm shadow-[0_1px_3px_rgba(15,23,42,0.08)] hover:bg-surface-tint active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-lg leading-none">add_circle</span>
+            <span>Post Project</span>
+          </button>
+        </div>
+
+        {/* Navigation Sections */}
+        <nav className="px-space-sm mt-space-xs space-y-1">
+          <div className="px-space-md pt-space-xs pb-1 font-label-sm text-label-sm uppercase tracking-wider text-outline">
+            Platform
+          </div>
+          {platformNav.map((item) => {
+            const isActive = activeView === item.id || (item.id === 'discover-projects' && activeView === 'project-details');
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleNavClick(item.id)}
+                className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
+                  isActive
+                    ? 'bg-surface-container text-on-surface font-semibold shadow-sm'
+                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+
+          <div className="px-space-md pt-space-md pb-1 font-label-sm text-label-sm uppercase tracking-wider text-outline">
+            My Work
+          </div>
+          {myWorkNav.map((item) => {
+            const isActive = activeView === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleNavClick(item.id)}
+                className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
+                  isActive
+                    ? 'bg-surface-container text-on-surface font-semibold shadow-sm'
+                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Bottom Nav & User Profile Footer */}
+      <div className="px-space-sm pb-space-md space-y-1 bg-surface-container-lowest">
+        <nav className="space-y-1">
+          {bottomNav.map((item) => {
+            const isActive = activeView === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleNavClick(item.id)}
+                className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
+                  isActive
+                    ? 'bg-surface-container text-on-surface font-semibold shadow-sm'
+                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* User Card */}
+        <div className="pt-space-xs mt-space-xs">
+          <div 
+            onClick={() => handleNavClick('profile')}
+            className="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer"
+          >
+            <img 
+              alt="Profile" 
+              className="w-9 h-9 rounded-full object-cover shadow-[0_1px_3px_rgba(15,23,42,0.08)] shrink-0" 
+              src="https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG"
+            />
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="font-title-sm text-title-sm font-semibold text-on-surface truncate leading-tight">
+                Jayanth V.
+              </span>
+              <span className="font-body-sm text-body-sm text-on-surface-variant truncate leading-tight">
+                Stanford CS '26
+              </span>
+            </div>
+            <span className="material-symbols-outlined text-on-surface-variant text-base">unfold_more</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
