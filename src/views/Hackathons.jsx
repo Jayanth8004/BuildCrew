@@ -2,14 +2,19 @@ import { useState, useMemo } from 'react';
 import HackathonHero from '../components/hackathons/HackathonHero';
 import HackathonCard from '../components/hackathons/HackathonCard';
 import HackathonDetailsModal from '../components/hackathons/HackathonDetailsModal';
+import HackathonSquadUpModal from '../components/hackathons/HackathonSquadUpModal';
 import SubmitHackathonModal from '../components/hackathons/SubmitHackathonModal';
 import HackathonSidebar from '../components/hackathons/HackathonSidebar';
 
 export default function Hackathons({ 
   hackathons, 
-  squadWins, 
-  onFindSquad,
+  squadWins,
+  projects = [],
+  builders = [],
   onAddHackathon,
+  onApplySquad,
+  onInviteBuilder,
+  onCreateSquad,
   showToast
 }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,6 +26,7 @@ export default function Hackathons({
 
   // Modals state
   const [selectedHackathon, setSelectedHackathon] = useState(null);
+  const [squadUpHackathon, setSquadUpHackathon] = useState(null);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
   const toggleTrack = (trackKey) => {
@@ -39,7 +45,7 @@ export default function Hackathons({
 
   const hasActiveFilters = searchQuery.trim() || statusTab !== 'all' || activeMode !== 'all' || activeTracks.length > 0 || sortBy !== 'date';
 
-  // Active Flagship for Hero Banner
+  // Active Flagship for Hero Spotlight
   const flagship = useMemo(() => {
     return hackathons.find(h => h.isFeatured || h.id === 'hacknova-2026') || hackathons[0];
   }, [hackathons]);
@@ -99,11 +105,10 @@ export default function Hackathons({
         const prizeB = parseInt(b.prizePool.replace(/[^0-9]/g, '')) || 0;
         return prizeB - prizeA;
       }
-      return 0; // default order
+      return 0;
     });
   }, [hackathons, flagship, searchQuery, statusTab, activeMode, activeTracks, sortBy]);
 
-  // Symmetrical separation between active and concluded events when statusTab is 'all'
   const activeCircuitHackathons = useMemo(() => {
     if (statusTab === 'finished') return [];
     if (statusTab !== 'all') return filteredHackathons;
@@ -116,6 +121,15 @@ export default function Hackathons({
     return filteredHackathons.filter(h => h.status === 'finished');
   }, [filteredHackathons, statusTab]);
 
+  const handleOpenSquadUp = (hackathonOrTitle) => {
+    if (typeof hackathonOrTitle === 'string') {
+      const found = hackathons.find(h => h.title.toLowerCase().includes(hackathonOrTitle.toLowerCase())) || flagship;
+      setSquadUpHackathon(found);
+    } else {
+      setSquadUpHackathon(hackathonOrTitle);
+    }
+  };
+
   const handleSubmitNewHackathon = (newHack) => {
     if (onAddHackathon) {
       onAddHackathon(newHack);
@@ -127,97 +141,52 @@ export default function Hackathons({
 
   return (
     <div className="flex flex-col w-full pb-space-xl space-y-6">
-      {/* 1. Header & Metric Strip Section */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-1.5 text-secondary text-xs font-extrabold uppercase tracking-wider mb-1">
-              <span className="material-symbols-outlined text-base">military_tech</span>
-              <span>Sanctioned Collegiate Circuit</span>
-              <span className="text-outline-variant">•</span>
-              <span className="text-on-surface-variant font-medium">Fall 2026 – Spring 2027</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-on-surface tracking-tight leading-tight">
-              Collegiate Hackathons &amp; Circuits
-            </h1>
-            <p className="text-xs sm:text-sm text-on-surface-variant mt-1 leading-relaxed max-w-2xl">
-              Sanctioned collegiate hackathons, verified prize bounties, and cross-campus squad formation.
-            </p>
+      {/* 1. Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-1.5 text-secondary text-xs font-extrabold uppercase tracking-wider mb-1">
+            <span className="material-symbols-outlined text-base">military_tech</span>
+            <span>Sanctioned Collegiate Circuit</span>
+            <span className="text-outline-variant">•</span>
+            <span className="text-on-surface-variant font-medium">2026–2027 Season</span>
           </div>
-
-          {/* Action Header Buttons */}
-          <div className="flex items-center gap-2.5 self-start lg:self-auto shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                if (showToast) showToast('Circuit Schedule synced with your Stanford Google Calendar!');
-              }}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-bold shadow-sm transition-all cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-base text-secondary">calendar_month</span>
-              <span>My Schedule</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsSubmitModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint active:scale-[0.98] text-on-primary text-xs font-bold shadow-md transition-all cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-base">add_task</span>
-              <span>Submit Hackathon</span>
-            </button>
-          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-on-surface tracking-tight leading-tight">
+            Collegiate Hackathons
+          </h1>
+          <p className="text-xs sm:text-sm text-on-surface-variant mt-1 leading-relaxed max-w-2xl">
+            Sanctioned collegiate hackathons, verified prize bounties, and in-circuit squad matchmaking.
+          </p>
         </div>
 
-        {/* Quick Circuit Metrics Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-surface-container-lowest border border-surface-container-high/80 shadow-sm text-xs">
-          <div className="flex items-center gap-2.5 px-3 py-1.5 border-r border-surface-container-high/60">
-            <span className="w-7 h-7 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold shrink-0">
-              <span className="material-symbols-outlined text-base">terminal</span>
-            </span>
-            <div>
-              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Circuit Events</span>
-              <span className="font-extrabold text-sm text-on-surface mt-0.5 block">{hackathons.length} Sanctioned</span>
-            </div>
-          </div>
+        {/* Action Header Buttons */}
+        <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              if (showToast) showToast('Circuit Schedule synced with your Stanford Google Calendar!');
+            }}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-bold shadow-sm transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-base text-secondary">calendar_month</span>
+            <span>My Schedule</span>
+          </button>
 
-          <div className="flex items-center gap-2.5 px-3 py-1.5 sm:border-r border-surface-container-high/60">
-            <span className="w-7 h-7 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold shrink-0">
-              <span className="material-symbols-outlined text-base">military_tech</span>
-            </span>
-            <div>
-              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Total Prize Pool</span>
-              <span className="font-extrabold text-sm text-amber-900 mt-0.5 block">$290,000+</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 px-3 py-1.5 border-r border-surface-container-high/60">
-            <span className="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold shrink-0">
-              <span className="material-symbols-outlined text-base">person_search</span>
-            </span>
-            <div>
-              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Seeking Squads</span>
-              <span className="font-extrabold text-sm text-indigo-900 mt-0.5 block">180+ Hackers</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 px-3 py-1.5">
-            <span className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold shrink-0">
-              <span className="material-symbols-outlined text-base">verified</span>
-            </span>
-            <div>
-              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Admin Standard</span>
-              <span className="font-extrabold text-sm text-emerald-900 mt-0.5 block">Tier-1 Sanctioned</span>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsSubmitModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint active:scale-[0.98] text-on-primary text-xs font-bold shadow-md transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-base">add_task</span>
+            <span>Submit Hackathon</span>
+          </button>
         </div>
       </div>
 
-      {/* 2. Flagship Featured Hero Showcase */}
+      {/* 2. Flagship Featured Hero Spotlight */}
       {flagship && (
         <HackathonHero
           flagship={flagship}
-          onFindSquad={onFindSquad}
+          onFindSquad={() => handleOpenSquadUp(flagship)}
           onOpenDetails={(h) => setSelectedHackathon(h)}
         />
       )}
@@ -236,7 +205,7 @@ export default function Hackathons({
               id="hackathonSearchInput"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by event, university, track..."
+              placeholder="Search hackathons by name, university, track..."
               className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest outline-none text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant transition-all font-medium"
             />
             {searchQuery && (
@@ -383,7 +352,7 @@ export default function Hackathons({
         </div>
       </div>
 
-      {/* 4. Main Bento Section (Feed 8 cols : Sidebar 4 cols) */}
+      {/* 4. Main Section (Feed 8 cols : Sidebar 4 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Hackathon Listings (8 cols) */}
         <div className="lg:col-span-8 space-y-6">
@@ -412,7 +381,7 @@ export default function Hackathons({
                       hackathon={h}
                       viewMode="grid"
                       onSelect={(item) => setSelectedHackathon(item)}
-                      onFindSquad={onFindSquad}
+                      onFindSquad={() => handleOpenSquadUp(h)}
                     />
                   ))}
                 </div>
@@ -424,7 +393,7 @@ export default function Hackathons({
                       hackathon={h}
                       viewMode="list"
                       onSelect={(item) => setSelectedHackathon(item)}
-                      onFindSquad={onFindSquad}
+                      onFindSquad={() => handleOpenSquadUp(h)}
                     />
                   ))}
                 </div>
@@ -432,7 +401,7 @@ export default function Hackathons({
             </div>
           )}
 
-          {/* Concluded / Archive Circuit Section (Always separated to keep grid symmetrical!) */}
+          {/* Concluded / Archive Circuit Section */}
           {concludedHackathons.length > 0 && (
             <div className="pt-2 space-y-3.5">
               <div className="flex items-center justify-between pb-0.5 pt-2 border-t border-surface-container-high/70">
@@ -458,7 +427,7 @@ export default function Hackathons({
                       hackathon={h}
                       viewMode="grid"
                       onSelect={(item) => setSelectedHackathon(item)}
-                      onFindSquad={onFindSquad}
+                      onFindSquad={() => handleOpenSquadUp(h)}
                     />
                   ))}
                 </div>
@@ -470,7 +439,7 @@ export default function Hackathons({
                       hackathon={h}
                       viewMode="list"
                       onSelect={(item) => setSelectedHackathon(item)}
-                      onFindSquad={onFindSquad}
+                      onFindSquad={() => handleOpenSquadUp(h)}
                     />
                   ))}
                 </div>
@@ -478,56 +447,65 @@ export default function Hackathons({
             </div>
           )}
 
-          {/* Empty State */}
           {activeCircuitHackathons.length === 0 && concludedHackathons.length === 0 && (
-            <div className="p-12 rounded-2xl bg-surface-container-lowest border border-surface-container-high text-center space-y-3">
+            <div className="bg-surface-container-lowest rounded-3xl p-12 text-center border border-surface-container-high space-y-3">
               <span className="material-symbols-outlined text-4xl text-outline">search_off</span>
-              <h4 className="font-title-md font-bold text-on-surface">No hackathons match your filters</h4>
+              <h4 className="font-title-lg font-bold text-on-surface">No hackathons match your filters</h4>
               <p className="text-xs text-on-surface-variant max-w-sm mx-auto">
-                No events match your current filter criteria. Try clearing search filters or changing the status tab.
+                Try clearing your search query or reset the track filters.
               </p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold transition-all inline-block mt-1 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface transition-all cursor-pointer inline-block mt-1"
               >
-                Clear All Filters
+                Reset Filters
               </button>
             </div>
           )}
         </div>
 
-        {/* Right Column: Circuit Hub Sidebar (4 cols) */}
+        {/* Right Column: Circuit Intelligence & Wins Sidebar (4 cols) */}
         <div className="lg:col-span-4 sticky top-20">
           <HackathonSidebar
             squadWins={squadWins}
             onOpenHallOfFame={() => {
-              if (showToast) showToast('Opening BuildCrew Collegiate Hall of Fame (48 winning squads)');
+              if (showToast) showToast('Opening BuildCrew Collegiate Hall of Fame (48 Podiums)');
             }}
             onCheckTravelGrant={() => {
-              if (showToast) showToast('Verified Stanford CS: $250 travel stipends available for Boston & SF circuits');
+              if (showToast) showToast('Eligible for $250-$500 Cross-Campus Travel Grants!');
             }}
           />
         </div>
       </div>
 
-      {/* 5. Modals */}
-      {selectedHackathon && (
-        <HackathonDetailsModal
-          hackathon={selectedHackathon}
-          isOpen={Boolean(selectedHackathon)}
-          onClose={() => setSelectedHackathon(null)}
-          onFindSquad={onFindSquad}
-        />
-      )}
+      {/* Hackathon Squad Up Modal (Resolves bug: stays right here in Hackathons!) */}
+      <HackathonSquadUpModal
+        hackathon={squadUpHackathon}
+        isOpen={Boolean(squadUpHackathon)}
+        onClose={() => setSquadUpHackathon(null)}
+        projects={projects}
+        builders={builders}
+        onApplySquad={onApplySquad}
+        onInviteBuilder={onInviteBuilder}
+        onCreateSquad={onCreateSquad}
+        showToast={showToast}
+      />
 
-      {isSubmitModalOpen && (
-        <SubmitHackathonModal
-          isOpen={isSubmitModalOpen}
-          onClose={() => setIsSubmitModalOpen(false)}
-          onSubmitHackathon={handleSubmitNewHackathon}
-        />
-      )}
+      {/* Comprehensive Details Modal */}
+      <HackathonDetailsModal
+        hackathon={selectedHackathon}
+        isOpen={Boolean(selectedHackathon)}
+        onClose={() => setSelectedHackathon(null)}
+        onFindSquad={(h) => handleOpenSquadUp(h)}
+      />
+
+      {/* Submit Hackathon Modal */}
+      <SubmitHackathonModal
+        isOpen={isSubmitModalOpen}
+        onClose={() => setIsSubmitModalOpen(false)}
+        onSubmit={handleSubmitNewHackathon}
+      />
     </div>
   );
 }

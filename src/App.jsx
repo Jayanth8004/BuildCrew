@@ -90,11 +90,6 @@ export default function App() {
     showToast(`Invitation dispatched to ${builderName}!`);
   };
 
-  const handleFindSquadFromHackathon = (hackathonTitle) => {
-    setActiveView('discover-projects');
-    showToast(`Filtering squads targeting ${hackathonTitle}`);
-  };
-
   return (
     <div className="min-h-screen bg-background text-on-surface flex flex-col font-body-md antialiased">
       {/* Fixed Navigation Sidebar */}
@@ -144,7 +139,11 @@ export default function App() {
             <Hackathons
               hackathons={hackathons}
               squadWins={squadWins}
-              onFindSquad={handleFindSquadFromHackathon}
+              projects={projects}
+              builders={builders}
+              onApplySquad={handleApplySuccess}
+              onInviteBuilder={handleInviteBuilder}
+              onCreateSquad={handleAddProject}
               onAddHackathon={handleAddHackathon}
               showToast={showToast}
             />
