@@ -4,33 +4,49 @@ export default function Header({
   onOpenCommandPalette, 
   searchQuery, 
   setSearchQuery,
+  onSearchFocus,
   notificationCount = 2,
   onNavigateProfile
 }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showActivityFeed, setShowActivityFeed] = useState(false);
 
+  const handleInputChange = (e) => {
+    setSearchQuery(e.target.value);
+    if (onSearchFocus) {
+      onSearchFocus();
+    }
+  };
+
+  const handleClear = () => {
+    setSearchQuery('');
+  };
+
   return (
     <header className="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg">
-      {/* Left: Search Bar & Campus Tag */}
+      {/* Left: Active Search Bar & Campus Tag */}
       <div className="flex items-center gap-space-md">
-        <div 
-          onClick={onOpenCommandPalette}
-          className="relative flex items-center w-80 cursor-pointer group"
-        >
-          <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none group-hover:text-secondary transition-colors">
+        <div className="relative flex items-center w-84 group">
+          <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none group-focus-within:text-secondary transition-colors">
             search
           </span>
           <input 
-            readOnly
-            value={searchQuery || ''}
-            className="w-full pl-9 pr-12 py-2 bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm rounded-xl outline-none shadow-[0_1px_3px_rgba(15,23,42,0.04)] group-hover:shadow-[0_0_0_2px_rgba(0,81,213,0.3)] transition-all cursor-pointer" 
-            placeholder="Search projects, stacks, hackers... (⌘K)" 
             type="text"
+            value={searchQuery || ''}
+            onChange={handleInputChange}
+            className="w-full pl-9 pr-9 py-2 bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm rounded-xl outline-none shadow-[0_1px_3px_rgba(15,23,42,0.04)] focus:shadow-[0_0_0_2px_rgba(0,81,213,0.3)] border border-transparent focus:border-secondary/20 transition-all" 
+            placeholder="Search projects, stacks, roles..." 
           />
-          <kbd className="absolute right-3 px-1.5 py-0.5 font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high rounded text-[10px]">
-            ⌘K
-          </kbd>
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-2.5 text-on-surface-variant hover:text-on-surface p-1 transition-colors cursor-pointer"
+              title="Clear search"
+            >
+              <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+          ) : null}
         </div>
 
         <div className="hidden lg:flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-container text-on-surface font-label-md text-label-md select-none">
@@ -48,7 +64,7 @@ export default function Header({
           <button 
             aria-label="Activity Feed" 
             onClick={() => setShowActivityFeed(!showActivityFeed)}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all ${showActivityFeed ? 'bg-surface-container text-secondary' : ''}`}
+            className={`w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all cursor-pointer ${showActivityFeed ? 'bg-surface-container text-secondary' : ''}`}
           >
             <span className="material-symbols-outlined text-xl">campaign</span>
           </button>
@@ -91,7 +107,7 @@ export default function Header({
           <button 
             aria-label="Notifications" 
             onClick={() => setShowNotifications(!showNotifications)}
-            className={`relative w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all ${showNotifications ? 'bg-surface-container text-secondary' : ''}`}
+            className={`relative w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all cursor-pointer ${showNotifications ? 'bg-surface-container text-secondary' : ''}`}
           >
             <span className="material-symbols-outlined text-xl">notifications</span>
             {notificationCount > 0 && (

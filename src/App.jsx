@@ -111,6 +111,11 @@ export default function App() {
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          onSearchFocus={() => {
+            if (activeView !== 'discover-projects') {
+              setActiveView('discover-projects');
+            }
+          }}
           notificationCount={applications.length}
           onNavigateProfile={() => setActiveView('profile')}
         />
@@ -120,6 +125,8 @@ export default function App() {
           {activeView === 'discover-projects' && (
             <DiscoverProjects
               projects={projects}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
               onSelectProject={handleSelectProject}
               onQuickApply={handleQuickApply}
             />
