@@ -25,7 +25,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('discover-projects');
   const [projects, setProjects] = useState(initialProjects);
   const [selectedProject, setSelectedProject] = useState(initialProjects[0]);
-  const [hackathons] = useState(initialHackathons);
+  const [hackathons, setHackathons] = useState(initialHackathons);
   const [squadWins] = useState(initialSquadWins);
   const [builders] = useState(initialBuilders);
   const [applications, setApplications] = useState(initialApplications);
@@ -42,6 +42,11 @@ export default function App() {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleAddHackathon = (newHack) => {
+    setHackathons(prev => [newHack, ...prev]);
+    showToast(`Hackathon "${newHack.title}" submitted to circuit registry!`);
   };
 
   // Nav actions
@@ -133,7 +138,8 @@ export default function App() {
               hackathons={hackathons}
               squadWins={squadWins}
               onFindSquad={handleFindSquadFromHackathon}
-              onOpenPostProject={() => setIsPostProjectOpen(true)}
+              onAddHackathon={handleAddHackathon}
+              showToast={showToast}
             />
           )}
 

@@ -365,9 +365,14 @@ export const initialProjects = [
 export const initialHackathons = [
   {
     id: 'hacknova-2026',
+    circuitId: 'BC-CIRC-2026-01',
     title: 'HACKNOVA 2026',
     subtitle: 'North American Student Engineering Flagship',
-    organizer: 'MIT Tech Alliance & BuildCrew',
+    organizer: {
+      name: 'MIT Tech Alliance & BuildCrew',
+      website: 'https://hacknova.org',
+      partnerType: 'Tier-1 Host Partner'
+    },
     dates: 'Oct 24–26, 2026',
     location: 'MIT Stata Center, Cambridge, MA',
     mode: 'hybrid',
@@ -375,31 +380,77 @@ export const initialHackathons = [
     squadLimits: '2 to 4 Builders',
     freeEntry: true,
     status: 'open',
-    statusLabel: 'Closes in 4 Days (Oct 14)',
+    statusLabel: 'Closes in 4 Days',
+    registrationDeadline: 'Oct 14, 2026',
+    isFeatured: true,
+    isVerified: true,
+    tier: 'Tier-1 Global Sanctioned',
     registeredTeams: 410,
     maxCap: 500,
     soloMatches: 64,
+    seekersCount: 64,
     tracks: ['ai', 'web3', 'fintech', 'healthtech'],
     trackLabels: ['Autonomic Agents', 'Verifiable Security', 'Decentralized Infra', 'Edge AI'],
     heroImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
-    badge: 'Featured Flagship 2026'
+    badge: 'Featured Flagship 2026',
+    description: 'Join 1,200 elite collegiate technologists at the intersection of autonomic agent swarms, verifiable hardware security, and decentralized infrastructure. Fast-track check-in and dedicated BuildCrew workspace lounges enabled.',
+    bounties: [
+      { track: 'Autonomic Agents & LLM Swarms', prize: '$15,000', sponsor: 'OpenAI Foundation' },
+      { track: 'Verifiable Hardware Security', prize: '$12,000', sponsor: 'Intel Labs' },
+      { track: 'Decentralized Data Mesh', prize: '$10,000', sponsor: 'Protocol Labs' },
+      { track: 'Edge Healthcare Diagnostics', prize: '$8,000', sponsor: 'Broad Institute' }
+    ],
+    schedule: [
+      { phase: 'Team Applications Close', date: 'Oct 14, 11:59 PM PT', status: 'upcoming' },
+      { phase: 'Acceptances & Squad Confirmation', date: 'Oct 18, 5:00 PM PT', status: 'upcoming' },
+      { phase: 'Opening Ceremony & Hacking Begins', date: 'Oct 24, 6:00 PM ET', status: 'upcoming' },
+      { phase: 'Project Expo & Live Demos', date: 'Oct 26, 12:00 PM ET', status: 'upcoming' },
+      { phase: 'Grand Prize Awards Ceremony', date: 'Oct 26, 4:00 PM ET', status: 'upcoming' }
+    ],
+    eligibility: 'Open to enrolled undergraduate & graduate students globally. Travel bursaries available.'
   },
   {
     id: 'treehacks-2026',
+    circuitId: 'BC-CIRC-2026-02',
     title: 'Stanford TreeHacks 2026',
-    subtitle: 'Organized by Stanford ACM & TreeHacks Board',
+    subtitle: 'Stanford ACM & TreeHacks Organizing Board',
+    organizer: {
+      name: 'Stanford ACM & TreeHacks Board',
+      website: 'https://treehacks.com',
+      partnerType: 'Collegiate Host'
+    },
     dates: 'Nov 14–16, 2026',
-    location: 'Stanford, CA',
+    location: 'Stanford University, CA',
     mode: 'hybrid',
-    prizePool: '$30k+ Prizes',
+    prizePool: '$30,000+ Prizes',
     squadLimits: '3–4 Builders',
     freeEntry: true,
     status: 'open',
     statusLabel: 'Registration Open',
+    registrationDeadline: 'Nov 01, 2026',
+    isFeatured: false,
+    isVerified: true,
+    tier: 'Tier-1 Global Sanctioned',
+    registeredTeams: 320,
+    maxCap: 450,
     tracks: ['ai', 'healthtech', 'climate'],
-    trackLabels: ['Frontier AI', 'Health', 'Civic Tech', 'Hardware Lab'],
+    trackLabels: ['Frontier AI', 'Health & Bio', 'Civic Tech', 'Hardware Lab'],
     logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBOiGrwOIFIYq7j2gSwuRQE4AyyqIM3qvFGmQZIAqK9KBLYrF917kTJTPCVLikb83bqBM3AipMVnXjC2Wpal1RveyUcrdcMG22bPZZ8TKzti5MGWnEmAPL8l93XhYZzzY56BOcV5IKYyLAJwmquyvQG87Aqmggo9T4d2r--ZodoybeZxomgaJC1bUlvQ-YFzqFQX-Gcy6jRsQsQhLmjY3yl6cA_43SIhdIcq6IajJOwchOYpF2ruRi7',
+    coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     seekersCount: 38,
+    description: 'Stanford University’s premier hackathon bringing together students from around the world to build systems that tackle humanity’s toughest challenges in health, climate, and intelligence.',
+    bounties: [
+      { track: 'Grand Prize Winner', prize: '$10,000', sponsor: 'TreeHacks Fund' },
+      { track: 'Best Climate & Sustainability System', prize: '$8,000', sponsor: 'Doerr School' },
+      { track: 'Biomedical Innovation Bounty', prize: '$7,000', sponsor: 'Stanford Bio-X' },
+      { track: 'Frontier AI Agent Architect', prize: '$5,000', sponsor: 'Anthropic' }
+    ],
+    schedule: [
+      { phase: 'Priority Admissions Deadline', date: 'Oct 28, 2026', status: 'upcoming' },
+      { phase: 'Final Squad Confirmation', date: 'Nov 07, 2026', status: 'upcoming' },
+      { phase: 'Check-in & Hackathon Kickoff', date: 'Nov 14, 5:00 PM PT', status: 'upcoming' },
+      { phase: 'Project Expo & Judging', date: 'Nov 16, 1:00 PM PT', status: 'upcoming' }
+    ],
     seekerAvatars: [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCirG--i4oV_UcIgbN-oAICBrqo3JmwNzCYjG3hmc01buB8LVzvSBVNZO5jsmoBE1_tu-iY1GNLoFhiRwsIPWtehaTsR3cbek5Ma2zIXKmiW4oauEjY_vmGAs2m6RfkBY-Xx1cMkX_y-tGOJz94deuFqcKrnIoaEuCwyOg8m_XmjkDBP06_zLix4og7Z69QT-TjNLZplZ0gumu6KcTYx8jVqsFWt01EXQC-Sp_NKxNmg-5u1oTXkggg',
       'https://lh3.googleusercontent.com/aida-public/AB6AXuBIUDlb_eJeqJf_ER_NQsFjlW6ppZ8CpxQ3AE7AU0B_ETT1zxECjI522nhhaXf9FGczCf3JCXe0Yr46rpYKvI-hOk6tDuivz1Avbunnrofbr_e6MxqvoCsbHQYxfTUkroSXNEGG_Kp55rpsSHQB5Rvmo3T5YbC25mkMdmYghZo1A8bcWbfTkdc_4Nw4hDvWihqXNjnRCrLEURSG6U0uy__r6auSEzcvxxALuEKqRHnHGOzC-tJa4vTH',
@@ -408,20 +459,45 @@ export const initialHackathons = [
   },
   {
     id: 'calhacks-12',
+    circuitId: 'BC-CIRC-2026-03',
     title: 'CalHacks 12.0',
     subtitle: 'UC Berkeley Engineering Alliance',
+    organizer: {
+      name: 'UC Berkeley Engineering Alliance',
+      website: 'https://calhacks.io',
+      partnerType: 'Collegiate Host'
+    },
     dates: 'Dec 05–07, 2026',
-    location: 'San Francisco, CA',
+    location: 'Metreon, San Francisco, CA',
     mode: 'in-person',
-    prizePool: '$50k+ Capital Pool',
+    prizePool: '$50,000+ Capital Pool',
     squadLimits: '2–4 Builders',
     freeEntry: true,
     status: 'open',
     statusLabel: 'Registration Open',
+    registrationDeadline: 'Nov 18, 2026',
+    isFeatured: false,
+    isVerified: true,
+    tier: 'Tier-1 Global Sanctioned',
+    registeredTeams: 480,
+    maxCap: 600,
     tracks: ['ai', 'web3'],
     trackLabels: ['Open Web', 'Foundation Models', 'Autonomous Systems'],
     logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDFEyEOOQXj9CwklVF6bBrUA92fv6FN3WR154qabpGHQiBNSMrmqmonmpEiBM9VwTTcvc8to1_-Q_m48AyfMnBkWdCpVO5lz9FC8AIvpIQFb06P4NpUOFCHTR7oakGTYJHfdlWnyX7rvJCcnDpKWvMDGZUKZBlwMOAykYjSuw0KYkvj48dP7wTQu2XFbrH_ORQGegZCjnMhlKuh4nHjKXSgEdNyPzsTSc6mOepH58l3PGc8_3fS_ceB',
+    coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     seekersCount: 51,
+    description: 'The world’s largest collegiate hackathon hosted by UC Berkeley students in the heart of downtown San Francisco. 36 hours of relentless creation alongside Silicon Valley venture funds.',
+    bounties: [
+      { track: 'Grand Prize Venture Investment', prize: '$25,000 Check', sponsor: 'Berkeley SkyDeck' },
+      { track: 'Autonomous Agent Benchmark Prize', prize: '$15,000', sponsor: 'Scale AI' },
+      { track: 'Decentralized Compute Award', prize: '$10,000', sponsor: 'Solana Ventures' }
+    ],
+    schedule: [
+      { phase: 'Applications Close', date: 'Nov 18, 2026', status: 'upcoming' },
+      { phase: 'Hacker Welcome & Team Check-in', date: 'Dec 05, 4:00 PM PT', status: 'upcoming' },
+      { phase: 'Midnight Tech Talks & Mentorship', date: 'Dec 06, 12:00 AM PT', status: 'upcoming' },
+      { phase: 'Demo Day & Investor Judging', date: 'Dec 07, 2:00 PM PT', status: 'upcoming' }
+    ],
     seekerAvatars: [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuAPypdllsjXA2SDKEUO6iV9jbI3v9sf1sJ8ACrhCFvaT0BaPrA516WVQSIK8RL0Ep85ub5Sxeb1Pivav0rlRUQbEEpC9uK7z-LQLfQDyYeco7iFckrp0L83mzDq-uPbqGjShut168HkT22VfTCr1fWKZNjTrW83YhSefWPh7AAaetX5N54hVRRPuj47LI49uQCZlzJK0TAIy3hW7wwKdRjhyCi4NfpydAYy1ql96PKUrqBKoJlk-PGC',
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCxgKC2pBGNF02cPVF1DzTEMnFnFBuSkDHI38fJZEcTa4qzwO4sEQPnhjbQfulWro34dv45CoSSYIEx6m5yyMdQnxWZ1zlQKOdWWw5Z2e_s-sPKIWj6mqHxHIczxxjYRsvWno6_yK_v7-FEcw53xuDteAV_thuupSXOuJxJQUvQWaeYU1mWo_G4M2a_l7brD8npuyJHaCTE4yu_zeAwoq1blJ9WoTwyBrPkMzY7jzj6EljjrXl_dl4c'
@@ -429,42 +505,133 @@ export const initialHackathons = [
   },
   {
     id: 'pennapps-xxvii',
+    circuitId: 'BC-CIRC-2027-04',
     title: 'PennApps XXVII',
     subtitle: 'University of Pennsylvania',
+    organizer: {
+      name: 'University of Pennsylvania',
+      website: 'https://pennapps.com',
+      partnerType: 'Collegiate Host'
+    },
     dates: 'Jan 16–18, 2027',
     location: 'Philadelphia, PA',
     mode: 'in-person',
-    prizePool: 'Hardware & Software',
+    prizePool: '$40,000+ Hardware & Grants',
     squadLimits: '1–4 Builders (Solo Allowed)',
     freeEntry: true,
-    status: 'open',
-    statusLabel: 'Registration Open',
+    status: 'upcoming',
+    statusLabel: 'Opens Next Month',
+    registrationDeadline: 'Dec 15, 2026',
+    isFeatured: false,
+    isVerified: true,
+    tier: 'Tier-1 Global Sanctioned',
+    registeredTeams: 190,
+    maxCap: 500,
     tracks: ['fintech', 'healthtech'],
     trackLabels: ['Embedded Systems', 'FinTech & Payments', 'Health Diagnostics'],
     logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCDJzq8Xfkz-MOzw6DBSGSlNaKyW0Qh9bQlJJYZUS7gB54-SyEy1ZIZQfRfXiV4GnypO_Ewg2sl9PRh-yNWwoYB7jC7JcRaPkOEFeTYZroe7ne7Br_b3GV5JbuNMsjz6qXSAAeuwDK7WtUG-eWev8uDCjwApB-I9W3UegEmUU6zseJ-wVZMOHChfO3S_3n6cqZX8gluTB9RYHrMBoHDnr9M9xxiPFhblrol0NBH-go7lOarNwILb28W',
+    coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     seekersCount: 24,
+    description: 'The nation’s first student-run collegiate hackathon. Featuring hardware labs, real-time clinical diagnostics mentorship, and specialized FinTech bounties.',
+    bounties: [
+      { track: 'Hardware Lab Grand Prize', prize: '$12,000', sponsor: 'Penn Engineering' },
+      { track: 'Next-Gen Payment Infrastructure', prize: '$10,000', sponsor: 'Stripe' },
+      { track: 'Clinical Care Diagnostics', prize: '$8,000', sponsor: 'Penn Medicine' }
+    ],
+    schedule: [
+      { phase: 'Applications Open', date: 'Dec 01, 2026', status: 'upcoming' },
+      { phase: 'Admissions Decision Waves', date: 'Dec 22, 2026', status: 'upcoming' },
+      { phase: 'Hardware Lab Check-in', date: 'Jan 16, 6:00 PM ET', status: 'upcoming' }
+    ],
     seekerAvatars: [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCBnDqHq7n8m_K6j4eGKbfcjul0Rdr1QG5Ai8saCMYCXkObI8mE9oih96TixdnmcMXtFEQlqlJewoM56m3xVQh80IrQnjI75C0okcQgPtX5VRLyQyG1xncpm5xM1SIeGzIhdLzcGFIWr8ybJVxQlX3eAktW5BI5tcsgx9mTd85e_M5KIx3k4DKPbO4vVPaoJaaSIwqtLbYIOZafGhQxDeE9kN9GO3OSsDJWyLRvcTHafkjcPmV0Rs2I',
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCqeSGW7ZHBh6T-I-RKuu_cHLduY7JDkqSkw4YS8aOCLjgWK83zNBiimf5wAiIWudgwRyolqK7NvqM04shOwQFFcKe2wNHcEpGMlY2yZmfK3oTBaiIBmEffziOYRJyZsyBJvldr765bNXAmXvtDOhjzujDkO_1EN9Eymc6FsU6z42DGK5D_24_75narmil7zM5kGoRmhJQoVUaxzEQ6voivP7LuOiWXoR8Byp9EmQtmEfXfchU5BPaW'
     ]
   },
   {
+    id: 'ethglobal-sf-2026',
+    circuitId: 'BC-CIRC-2026-05',
+    title: 'ETHGlobal San Francisco',
+    subtitle: 'ETHGlobal Collegiate Circuit',
+    organizer: {
+      name: 'ETHGlobal & Web3 Campus Alliance',
+      website: 'https://ethglobal.com',
+      partnerType: 'Ecosystem Partner'
+    },
+    dates: 'Nov 20–22, 2026',
+    location: 'Palace of Fine Arts, San Francisco, CA',
+    mode: 'in-person',
+    prizePool: '$125,000 Bounties',
+    squadLimits: '1–5 Builders',
+    freeEntry: true,
+    status: 'open',
+    statusLabel: 'Registration Open',
+    registrationDeadline: 'Nov 10, 2026',
+    isFeatured: false,
+    isVerified: true,
+    tier: 'Tier-1 Global Sanctioned',
+    registeredTeams: 260,
+    maxCap: 400,
+    tracks: ['web3', 'fintech'],
+    trackLabels: ['Zero-Knowledge Circuits', 'On-chain AI Agents', 'DeFi Protocols'],
+    logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDFEyEOOQXj9CwklVF6bBrUA92fv6FN3WR154qabpGHQiBNSMrmqmonmpEiBM9VwTTcvc8to1_-Q_m48AyfMnBkWdCpVO5lz9FC8AIvpIQFb06P4NpUOFCHTR7oakGTYJHfdlWnyX7rvJCcnDpKWvMDGZUKZBlwMOAykYjSuw0KYkvj48dP7wTQu2XFbrH_ORQGegZCjnMhlKuh4nHjKXSgEdNyPzsTSc6mOepH58l3PGc8_3fS_ceB',
+    coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
+    seekersCount: 29,
+    description: 'Premier hackathon dedicated to decentralized protocols, smart contract execution, and autonomous on-chain agents. Connect with leading protocol engineers and founders.',
+    bounties: [
+      { track: 'Best Autonomous AI On-Chain Agent', prize: '$20,000', sponsor: 'Base & Coinbase' },
+      { track: 'Privacy & ZK Circuits', prize: '$15,000', sponsor: 'Aztec Network' },
+      { track: 'Decentralized Finance Innovations', prize: '$15,000', sponsor: 'Uniswap Labs' }
+    ],
+    schedule: [
+      { phase: 'Registration Deadline', date: 'Nov 10, 2026', status: 'upcoming' },
+      { phase: 'Hacker Staking & Opening', date: 'Nov 20, 4:00 PM PT', status: 'upcoming' },
+      { phase: 'Final Project Pitches', date: 'Nov 22, 1:00 PM PT', status: 'upcoming' }
+    ],
+    seekerAvatars: [
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd',
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuAoHUlbt9Z2sZE1mNrCaUHyErYt_nL322OdfYzB0hiI8-AOawIa2sqnJLQQD_sqL1U8SCgXiSI4sVALubBquMriTb43OtSTlUGC2BIFYgwC15LG292xTlpOxUbyMjR5mQVp4WFHcI8pfDdWEpA52lCwe4_1hcLlPIBRRROOP4PbmUC_6HmuPfflnSYm1xbSIWGAoZ8_zhnZU_kZ_cIMOEzm2vVAkdt-rO7wnmRB7jNUyhuN6y36YZOH'
+    ]
+  },
+  {
     id: 'hackmit-2026',
+    circuitId: 'BC-CIRC-2026-ARCH',
     title: 'HackMIT 2026',
     subtitle: 'MIT Tech Club',
+    organizer: {
+      name: 'MIT Tech Club',
+      website: 'https://hackmit.org',
+      partnerType: 'Collegiate Host'
+    },
     dates: 'Sep 19–21, 2026',
-    location: 'Boston, MA',
+    location: 'Cambridge, MA',
     mode: 'in-person',
-    prizePool: 'Free Entry',
+    prizePool: '$35,000 Awarded',
     squadLimits: '2–4 Builders',
     freeEntry: true,
     status: 'finished',
     statusLabel: 'Event Concluded',
+    registrationDeadline: 'Concluded Sep 10, 2026',
+    isFeatured: false,
+    isVerified: true,
+    tier: 'Tier-1 Global Sanctioned',
+    registeredTeams: 500,
+    maxCap: 500,
     tracks: ['ai', 'climate'],
-    trackLabels: ['Frontier AI', 'Robotics'],
+    trackLabels: ['Frontier AI', 'Robotics', 'Climate Models'],
     logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBA_EZF8FakmJ9gNE8Qb-O6hhCLOQvPHlf5p5jpmVZuF3QjfcOhr3pB4eN0g3KQev_luZCzYShKt221pvgDKZsB0E5LgqAoq8ncczUwUGGWJr2ZuK8BpiejOTLZSdgrSZGIIUJllj3mXWh7zpeW5AGOa5TRJe4aoZOerdz_y0LM-UWOf--D_QHyOBjLuTtijx9aV3mU2Yjd0kRGKjhPQ-iLBJ62_yn63lT7wAWPLt7P4ceD1tP5UFDz',
+    coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     podiumBadge: '3 BuildCrew Podium Teams',
-    archiveHighlight: 'First place won by BuildCrew squad "NeuroMesh" ($15,000 grant)'
+    archiveHighlight: 'First place won by BuildCrew squad "NeuroMesh" ($15,000 grant)',
+    description: 'MIT’s premier collegiate hackathon. Over 1,000 hackers convened to prototype software and hardware solutions over 24 continuous hacking hours.',
+    bounties: [
+      { track: 'Grand Prize 1st Place', prize: '$15,000', sponsor: 'BuildCrew & MIT Alliance' },
+      { track: 'Best AI Inference Engine', prize: '$10,000', sponsor: 'NVIDIA' },
+      { track: 'Green Energy Optimizer', prize: '$10,000', sponsor: 'Breakthrough Energy' }
+    ],
+    schedule: [
+      { phase: 'Event Concluded & Judging Complete', date: 'Sep 21, 2026', status: 'completed' }
+    ]
   }
 ];
 
