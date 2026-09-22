@@ -34,19 +34,31 @@ export default function Hackathons({
     setStatusTab('all');
     setActiveMode('all');
     setActiveTracks([]);
+    setSortBy('date');
   };
 
-  const hasActiveFilters = searchQuery.trim() || statusTab !== 'all' || activeMode !== 'all' || activeTracks.length > 0;
+  const hasActiveFilters = searchQuery.trim() || statusTab !== 'all' || activeMode !== 'all' || activeTracks.length > 0 || sortBy !== 'date';
 
   // Active Flagship for Hero Banner
   const flagship = useMemo(() => {
     return hackathons.find(h => h.isFeatured || h.id === 'hacknova-2026') || hackathons[0];
   }, [hackathons]);
 
+  // Overall Counts for Status Tabs
+  const tabCounts = useMemo(() => {
+    const listWithoutFlagship = hackathons.filter(h => !flagship || h.id !== flagship.id);
+    return {
+      all: listWithoutFlagship.length,
+      open: listWithoutFlagship.filter(h => h.status === 'open').length,
+      upcoming: listWithoutFlagship.filter(h => h.status === 'upcoming').length,
+      finished: listWithoutFlagship.filter(h => h.status === 'finished').length
+    };
+  }, [hackathons, flagship]);
+
   // Filtered Hackathons
   const filteredHackathons = useMemo(() => {
     return hackathons.filter(h => {
-      // Exclude flagship from standard list so it's not redundant with Hero
+      // Exclude flagship from standard list so it's highlighted in the Hero
       if (flagship && h.id === flagship.id) return false;
 
       // Search query
@@ -114,45 +126,90 @@ export default function Hackathons({
   };
 
   return (
-    <div className="flex flex-col w-full pb-space-xl">
-      {/* 1. Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md mb-6">
-        <div className="flex flex-col max-w-2xl">
-          <div className="flex items-center gap-1.5 text-secondary text-xs font-bold uppercase tracking-wider mb-1.5">
-            <span className="material-symbols-outlined text-base">military_tech</span>
-            <span>Sanctioned Collegiate Circuit</span>
-            <span className="text-outline-variant">•</span>
-            <span className="text-on-surface-variant font-medium">Fall 2026 – Spring 2027</span>
+    <div className="flex flex-col w-full pb-space-xl space-y-6">
+      {/* 1. Header & Metric Strip Section */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-1.5 text-secondary text-xs font-extrabold uppercase tracking-wider mb-1">
+              <span className="material-symbols-outlined text-base">military_tech</span>
+              <span>Sanctioned Collegiate Circuit</span>
+              <span className="text-outline-variant">•</span>
+              <span className="text-on-surface-variant font-medium">Fall 2026 – Spring 2027</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-on-surface tracking-tight leading-tight">
+              Collegiate Hackathons &amp; Circuits
+            </h1>
+            <p className="text-xs sm:text-sm text-on-surface-variant mt-1 leading-relaxed max-w-2xl">
+              Sanctioned collegiate hackathons, verified prize bounties, and cross-campus squad formation.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tight leading-tight">
-            Collegiate Hackathons &amp; Circuits
-          </h1>
-          <p className="text-sm sm:text-base text-on-surface-variant mt-1.5 leading-relaxed">
-            Discover sanctioned collegiate hackathons, explore bounty tracks, and connect with cross-campus teammates.
-          </p>
+
+          {/* Action Header Buttons */}
+          <div className="flex items-center gap-2.5 self-start lg:self-auto shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (showToast) showToast('Circuit Schedule synced with your Stanford Google Calendar!');
+              }}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-bold shadow-sm transition-all cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base text-secondary">calendar_month</span>
+              <span>My Schedule</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsSubmitModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-surface-tint active:scale-[0.98] text-on-primary text-xs font-bold shadow-md transition-all cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base">add_task</span>
+              <span>Submit Hackathon</span>
+            </button>
+          </div>
         </div>
 
-        {/* Action Header Buttons */}
-        <div className="flex items-center gap-2.5 self-start lg:self-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              if (showToast) showToast('Circuit Schedule synced with your Stanford Google Calendar!');
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold shadow-sm transition-all cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-base text-secondary">calendar_month</span>
-            <span>My Circuit Schedule</span>
-          </button>
+        {/* Quick Circuit Metrics Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-surface-container-lowest border border-surface-container-high/80 shadow-sm text-xs">
+          <div className="flex items-center gap-2.5 px-3 py-1.5 border-r border-surface-container-high/60">
+            <span className="w-7 h-7 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold shrink-0">
+              <span className="material-symbols-outlined text-base">terminal</span>
+            </span>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Circuit Events</span>
+              <span className="font-extrabold text-sm text-on-surface mt-0.5 block">{hackathons.length} Sanctioned</span>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setIsSubmitModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-surface-tint active:scale-[0.98] text-on-primary text-xs font-bold shadow-md transition-all cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-base">add_task</span>
-            <span>Submit Hackathon</span>
-          </button>
+          <div className="flex items-center gap-2.5 px-3 py-1.5 sm:border-r border-surface-container-high/60">
+            <span className="w-7 h-7 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold shrink-0">
+              <span className="material-symbols-outlined text-base">military_tech</span>
+            </span>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Total Prize Pool</span>
+              <span className="font-extrabold text-sm text-amber-900 mt-0.5 block">$290,000+</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 px-3 py-1.5 border-r border-surface-container-high/60">
+            <span className="w-7 h-7 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold shrink-0">
+              <span className="material-symbols-outlined text-base">person_search</span>
+            </span>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Seeking Squads</span>
+              <span className="font-extrabold text-sm text-indigo-900 mt-0.5 block">180+ Hackers</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 px-3 py-1.5">
+            <span className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold shrink-0">
+              <span className="material-symbols-outlined text-base">verified</span>
+            </span>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-outline block leading-none">Admin Standard</span>
+              <span className="font-extrabold text-sm text-emerald-900 mt-0.5 block">Tier-1 Sanctioned</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -165,13 +222,13 @@ export default function Hackathons({
         />
       )}
 
-      {/* 3. Streamlined Filter Command Bar with Tight Groups */}
-      <div className="bg-surface-container-lowest rounded-3xl p-5 border border-surface-container-high/80 shadow-sm mb-6 space-y-4">
+      {/* 3. Streamlined Filter Command Deck */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-surface-container-high/80 shadow-sm space-y-3.5">
         {/* Row 1: Search + Status Tabs + View Toggle */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Search Box */}
-          <div className="relative flex-1 max-w-lg">
-            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg pointer-events-none">
+          <div className="relative flex-1 max-w-md">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg pointer-events-none">
               search
             </span>
             <input
@@ -179,40 +236,45 @@ export default function Hackathons({
               id="hackathonSearchInput"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by event name, university, track, or circuit ID..."
-              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest outline-none text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant transition-all font-medium"
+              placeholder="Search by event, university, track..."
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest outline-none text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant transition-all font-medium"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            {/* Status Tabs */}
-            <div className="flex items-center gap-1 p-1 bg-surface-container-low rounded-2xl overflow-x-auto shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* Status Tabs with Live Badges */}
+            <div className="flex items-center gap-1 p-1 bg-surface-container-low rounded-xl overflow-x-auto shrink-0">
               {[
-                { id: 'all', label: 'All Hackathons' },
-                { id: 'open', label: 'Registration Open' },
-                { id: 'upcoming', label: 'Upcoming' },
-                { id: 'finished', label: 'Concluded / Past' }
+                { id: 'all', label: 'All', count: tabCounts.all },
+                { id: 'open', label: 'Open Registration', count: tabCounts.open },
+                { id: 'upcoming', label: 'Upcoming', count: tabCounts.upcoming },
+                { id: 'finished', label: 'Archive', count: tabCounts.finished }
               ].map(tab => (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => setStatusTab(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                     statusTab === tab.id
                       ? 'bg-surface-container-lowest text-on-surface shadow-sm'
                       : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
-                  {tab.label}
+                  <span>{tab.label}</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${
+                    statusTab === tab.id ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-surface-container-high text-on-surface-variant'
+                  }`}>
+                    {tab.count}
+                  </span>
                 </button>
               ))}
             </div>
@@ -229,7 +291,7 @@ export default function Hackathons({
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-lg">grid_view</span>
+                <span className="material-symbols-outlined text-base">grid_view</span>
               </button>
               <button
                 type="button"
@@ -241,7 +303,7 @@ export default function Hackathons({
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                <span className="material-symbols-outlined text-lg">view_list</span>
+                <span className="material-symbols-outlined text-base">view_list</span>
               </button>
             </div>
           </div>
@@ -250,7 +312,7 @@ export default function Hackathons({
         {/* Row 2: Tracks Filters & Format Selector */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-surface-container-high/60 text-xs">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-outline mr-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-outline mr-1">
               Tracks:
             </span>
             {[
@@ -258,7 +320,7 @@ export default function Hackathons({
               { id: 'web3', label: 'Web3 & ZK' },
               { id: 'fintech', label: 'FinTech' },
               { id: 'healthtech', label: 'HealthTech' },
-              { id: 'climate', label: 'Climate & Hardware' }
+              { id: 'climate', label: 'Climate' }
             ].map((track) => {
               const isSelected = activeTracks.includes(track.id);
               return (
@@ -266,7 +328,7 @@ export default function Hackathons({
                   key={track.id}
                   type="button"
                   onClick={() => toggleTrack(track.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-secondary text-on-secondary shadow-sm'
                       : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
@@ -278,16 +340,16 @@ export default function Hackathons({
             })}
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Mode Select */}
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2.5">
+            {/* Format Select */}
+            <div className="flex items-center gap-1">
               <span className="text-outline text-xs font-medium">Format:</span>
               <select
                 value={activeMode}
                 onChange={(e) => setActiveMode(e.target.value)}
-                className="bg-surface-container-low px-2.5 py-1.5 rounded-xl text-xs font-bold text-on-surface outline-none cursor-pointer"
+                className="bg-surface-container-low px-2 py-1 rounded-lg text-xs font-bold text-on-surface outline-none cursor-pointer"
               >
-                <option value="all">Any Format</option>
+                <option value="all">All Formats</option>
                 <option value="in-person">In-Person</option>
                 <option value="hybrid">Hybrid</option>
                 <option value="virtual">Virtual</option>
@@ -295,15 +357,15 @@ export default function Hackathons({
             </div>
 
             {/* Sort Select */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <span className="text-outline text-xs font-medium">Sort:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-surface-container-low px-2.5 py-1.5 rounded-xl text-xs font-bold text-on-surface outline-none cursor-pointer"
+                className="bg-surface-container-low px-2 py-1 rounded-lg text-xs font-bold text-on-surface outline-none cursor-pointer"
               >
                 <option value="date">Upcoming Date</option>
-                <option value="prize">Highest Prize Pool</option>
+                <option value="prize">Highest Prize</option>
               </select>
             </div>
 
@@ -322,18 +384,18 @@ export default function Hackathons({
       </div>
 
       {/* 4. Main Bento Section (Feed 8 cols : Sidebar 4 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Hackathon Listings (8 cols) */}
         <div className="lg:col-span-8 space-y-6">
           {/* Active / Open Circuit Section */}
           {activeCircuitHackathons.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-1">
+            <div className="space-y-3.5">
+              <div className="flex items-center justify-between pb-0.5">
                 <div className="flex items-center gap-2">
                   <h3 className="font-title-md font-extrabold text-on-surface">
                     Sanctioned Circuit Events
                   </h3>
-                  <span className="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-extrabold">
+                  <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-extrabold">
                     {activeCircuitHackathons.length} Active
                   </span>
                 </div>
@@ -372,14 +434,14 @@ export default function Hackathons({
 
           {/* Concluded / Archive Circuit Section (Always separated to keep grid symmetrical!) */}
           {concludedHackathons.length > 0 && (
-            <div className="pt-2 space-y-4">
-              <div className="flex items-center justify-between pb-1 pt-2 border-t border-surface-container-high/70">
+            <div className="pt-2 space-y-3.5">
+              <div className="flex items-center justify-between pb-0.5 pt-2 border-t border-surface-container-high/70">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-outline"></span>
                   <h4 className="font-title-md font-bold text-on-surface">
                     Circuit Archive &amp; Concluded Results
                   </h4>
-                  <span className="px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-bold">
                     {concludedHackathons.length}
                   </span>
                 </div>
@@ -418,7 +480,7 @@ export default function Hackathons({
 
           {/* Empty State */}
           {activeCircuitHackathons.length === 0 && concludedHackathons.length === 0 && (
-            <div className="p-12 rounded-3xl bg-surface-container-lowest border border-surface-container-high text-center space-y-3">
+            <div className="p-12 rounded-2xl bg-surface-container-lowest border border-surface-container-high text-center space-y-3">
               <span className="material-symbols-outlined text-4xl text-outline">search_off</span>
               <h4 className="font-title-md font-bold text-on-surface">No hackathons match your filters</h4>
               <p className="text-xs text-on-surface-variant max-w-sm mx-auto">
