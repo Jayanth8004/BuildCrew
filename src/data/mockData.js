@@ -374,14 +374,17 @@ export const initialHackathons = [
       partnerType: 'Tier-1 Host Partner'
     },
     dates: 'Oct 24–26, 2026',
+    startDate: 'Oct 24, 2026 · 6:00 PM ET',
+    endDate: 'Oct 26, 2026 · 4:00 PM ET',
     location: 'MIT Stata Center, Cambridge, MA',
     mode: 'hybrid',
     prizePool: '$45,000 Grants',
     squadLimits: '2 to 4 Builders',
     freeEntry: true,
-    status: 'open',
-    statusLabel: 'Closes in 4 Days',
-    registrationDeadline: 'Oct 14, 2026',
+    registrationFee: '100% Free (Host & Sponsor Funded)',
+    status: 'closing-soon',
+    statusLabel: 'Closing soon',
+    registrationDeadline: 'Oct 14, 2026 (4 days left)',
     isFeatured: true,
     isVerified: true,
     tier: 'Tier-1 Global Sanctioned',
@@ -394,6 +397,22 @@ export const initialHackathons = [
     heroImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     badge: 'Featured Flagship 2026',
     description: 'Join 1,200 elite collegiate technologists at the intersection of autonomic agent swarms, verifiable hardware security, and decentralized infrastructure. Fast-track check-in and dedicated BuildCrew workspace lounges enabled.',
+    eligibility: 'Open to enrolled undergraduate, master\'s, and PhD students globally. Valid university (.edu) email or student verification card required upon check-in.',
+    teamRequirements: 'Squads must consist of 2 to 4 builders. Cross-campus collaborative teams are strongly encouraged. Solo builders can match in the BuildCrew circuit before project lockdown.',
+    officialRegistrationLink: 'https://hacknova.org/register',
+    lastVerified: {
+      verifiedAt: 'Sep 22, 2026, 14:30 PT',
+      verifier: 'BuildCrew Collegiate Sanctioning Board',
+      circuitSanction: 'BC-CIRC-2026-01',
+      notes: 'Direct liaison with MIT Tech Alliance confirmed. Escrow bounties locked.'
+    },
+    rules: [
+      'Fresh Code Policy: All architecture code, frontend components, and model pipelines must be created during the official 36-hour hacking period. Open-source libraries and APIs may be used if disclosed.',
+      'Intellectual Property Ownership: Participating squads retain 100% ownership, copyright, and patent rights over their prototypes and codebases.',
+      'Team Capacity Limits: Strict minimum of 2 and maximum of 4 registered builders per squad. All contributors must be listed on the official roster.',
+      'Submission Standards: Each squad must provide a public GitHub repository, a live working deployment/demo link, and a 2-minute pitch video with audio narration.',
+      'Academic Integrity & Code of Conduct: Mutual respect, zero tolerance for harassment or plagiarism, and adherence to collegiate circuit guidelines are strictly enforced.'
+    ],
     bounties: [
       { track: 'Autonomic Agents & LLM Swarms', prize: '$15,000', sponsor: 'OpenAI Foundation' },
       { track: 'Verifiable Hardware Security', prize: '$12,000', sponsor: 'Intel Labs' },
@@ -406,8 +425,7 @@ export const initialHackathons = [
       { phase: 'Opening Ceremony & Hacking Begins', date: 'Oct 24, 6:00 PM ET', status: 'upcoming' },
       { phase: 'Project Expo & Live Demos', date: 'Oct 26, 12:00 PM ET', status: 'upcoming' },
       { phase: 'Grand Prize Awards Ceremony', date: 'Oct 26, 4:00 PM ET', status: 'upcoming' }
-    ],
-    eligibility: 'Open to enrolled undergraduate & graduate students globally. Travel bursaries available.'
+    ]
   },
   {
     id: 'treehacks-2026',
@@ -420,14 +438,17 @@ export const initialHackathons = [
       partnerType: 'Collegiate Host'
     },
     dates: 'Nov 14–16, 2026',
-    location: 'Stanford University, CA',
+    startDate: 'Nov 14, 2026 · 5:00 PM PT',
+    endDate: 'Nov 16, 2026 · 2:00 PM PT',
+    location: 'Stanford University, Stanford, CA',
     mode: 'hybrid',
     prizePool: '$30,000+ Prizes',
-    squadLimits: '3–4 Builders',
+    squadLimits: '3 to 4 Builders',
     freeEntry: true,
+    registrationFee: '100% Free',
     status: 'open',
-    statusLabel: 'Registration Open',
-    registrationDeadline: 'Nov 01, 2026',
+    statusLabel: 'Registration open',
+    registrationDeadline: 'Nov 01, 2026 at 11:59 PM PT',
     isFeatured: false,
     isVerified: true,
     tier: 'Tier-1 Global Sanctioned',
@@ -439,6 +460,22 @@ export const initialHackathons = [
     coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     seekersCount: 38,
     description: 'Stanford University’s premier hackathon bringing together students from around the world to build systems that tackle humanity’s toughest challenges in health, climate, and intelligence.',
+    eligibility: 'Open to all current university students (undergrad, grad, PhD) across accredited institutions worldwide.',
+    teamRequirements: 'Squads must consist of 3 to 4 registered hackers. Solos can form teams on Friday evening at the Stanford Maker Lounge.',
+    officialRegistrationLink: 'https://treehacks.com/apply',
+    lastVerified: {
+      verifiedAt: 'Sep 21, 2026, 11:15 PT',
+      verifier: 'Stanford ACM Verification Officer',
+      circuitSanction: 'BC-CIRC-2026-02',
+      notes: 'Official TreeHacks 2026 sponsorship track and hardware kits approved.'
+    },
+    rules: [
+      'Original Creation: All projects must be started from scratch during the hackathon. Using pre-existing code beyond open libraries will lead to disqualification.',
+      'Full IP Retention: All code and intellectual property created remains 100% owned by the squad members.',
+      'Team Constraints: Teams must adhere to 3-4 active builders. No solo project submissions for track judging.',
+      'Transparent Verification: Judging requires showing git commit history and live demo execution before mentors and venture judges.',
+      'Inclusive Community: Stanford code of conduct applies in-person and in the Discord workspaces.'
+    ],
     bounties: [
       { track: 'Grand Prize Winner', prize: '$10,000', sponsor: 'TreeHacks Fund' },
       { track: 'Best Climate & Sustainability System', prize: '$8,000', sponsor: 'Doerr School' },
@@ -468,18 +505,21 @@ export const initialHackathons = [
       partnerType: 'Collegiate Host'
     },
     dates: 'Dec 05–07, 2026',
+    startDate: 'Dec 05, 2026 · 4:00 PM PT',
+    endDate: 'Dec 07, 2026 · 2:00 PM PT',
     location: 'Metreon, San Francisco, CA',
     mode: 'in-person',
     prizePool: '$50,000+ Capital Pool',
-    squadLimits: '2–4 Builders',
+    squadLimits: '2 to 4 Builders',
     freeEntry: true,
-    status: 'open',
-    statusLabel: 'Registration Open',
-    registrationDeadline: 'Nov 18, 2026',
+    registrationFee: '100% Free (Venue & Meals Provided)',
+    status: 'team-full',
+    statusLabel: 'Team full',
+    registrationDeadline: 'Nov 18, 2026 (Max Capacity Reached)',
     isFeatured: false,
     isVerified: true,
     tier: 'Tier-1 Global Sanctioned',
-    registeredTeams: 480,
+    registeredTeams: 600,
     maxCap: 600,
     tracks: ['ai', 'web3'],
     trackLabels: ['Open Web', 'Foundation Models', 'Autonomous Systems'],
@@ -487,13 +527,29 @@ export const initialHackathons = [
     coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     seekersCount: 51,
     description: 'The world’s largest collegiate hackathon hosted by UC Berkeley students in the heart of downtown San Francisco. 36 hours of relentless creation alongside Silicon Valley venture funds.',
+    eligibility: 'Open to college students from all universities. In-person capacity capped at 2,400 students across 600 squads. Registration is currently at capacity; waitlist applications active.',
+    teamRequirements: 'Squads must have 2 to 4 members. Registered squads with vacant seats may recruit verified replacement builders via BuildCrew until Dec 1.',
+    officialRegistrationLink: 'https://calhacks.io/waitlist',
+    lastVerified: {
+      verifiedAt: 'Sep 23, 2026, 09:00 PT',
+      verifier: 'UC Berkeley Engineering Board',
+      circuitSanction: 'BC-CIRC-2026-03',
+      notes: 'Capacity threshold reached (600/600 squads). Waitlist and seat transfers monitored.'
+    },
+    rules: [
+      'Original Sprint Work: Projects must be developed during the hackathon timeframe. No pre-built codebases permitted.',
+      'Intellectual Property: Developers retain all rights to their code and prototypes.',
+      'Team Boundaries: Teams of 2-4 builders. No outside developer assistance allowed.',
+      'Demonstration Obligation: Live presentation in front of judges is mandatory for venture prize consideration.',
+      'Venue Guidelines: In-person check-in requires photo ID and signed student waiver.'
+    ],
     bounties: [
       { track: 'Grand Prize Venture Investment', prize: '$25,000 Check', sponsor: 'Berkeley SkyDeck' },
       { track: 'Autonomous Agent Benchmark Prize', prize: '$15,000', sponsor: 'Scale AI' },
       { track: 'Decentralized Compute Award', prize: '$10,000', sponsor: 'Solana Ventures' }
     ],
     schedule: [
-      { phase: 'Applications Close', date: 'Nov 18, 2026', status: 'upcoming' },
+      { phase: 'Applications Close (Max Capacity)', date: 'Nov 18, 2026', status: 'upcoming' },
       { phase: 'Hacker Welcome & Team Check-in', date: 'Dec 05, 4:00 PM PT', status: 'upcoming' },
       { phase: 'Midnight Tech Talks & Mentorship', date: 'Dec 06, 12:00 AM PT', status: 'upcoming' },
       { phase: 'Demo Day & Investor Judging', date: 'Dec 07, 2:00 PM PT', status: 'upcoming' }
@@ -514,14 +570,17 @@ export const initialHackathons = [
       partnerType: 'Collegiate Host'
     },
     dates: 'Jan 16–18, 2027',
-    location: 'Philadelphia, PA',
+    startDate: 'Jan 16, 2027 · 6:00 PM ET',
+    endDate: 'Jan 18, 2027 · 3:00 PM ET',
+    location: 'Engineering Quad, Philadelphia, PA',
     mode: 'in-person',
     prizePool: '$40,000+ Hardware & Grants',
-    squadLimits: '1–4 Builders (Solo Allowed)',
+    squadLimits: '1 to 4 Builders',
     freeEntry: true,
+    registrationFee: '100% Free (Hardware Kits Provided)',
     status: 'upcoming',
-    statusLabel: 'Opens Next Month',
-    registrationDeadline: 'Dec 15, 2026',
+    statusLabel: 'Upcoming',
+    registrationDeadline: 'Dec 15, 2026 (Opens Dec 01)',
     isFeatured: false,
     isVerified: true,
     tier: 'Tier-1 Global Sanctioned',
@@ -533,6 +592,22 @@ export const initialHackathons = [
     coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     seekersCount: 24,
     description: 'The nation’s first student-run collegiate hackathon. Featuring hardware labs, real-time clinical diagnostics mentorship, and specialized FinTech bounties.',
+    eligibility: 'All collegiate engineering and design students eligible. Hardware component loaners provided on-site with student ID.',
+    teamRequirements: '1 to 4 builders. Solo hackers permitted in hardware track with designated safety mentor.',
+    officialRegistrationLink: 'https://pennapps.com/register',
+    lastVerified: {
+      verifiedAt: 'Sep 20, 2026, 16:45 ET',
+      verifier: 'UPenn ACM Sanctioning Committee',
+      circuitSanction: 'BC-CIRC-2027-04',
+      notes: 'Sanction renewal complete for Season 2027. Hardware lab sponsorship locked.'
+    },
+    rules: [
+      'Original Design & Build: Both hardware circuitry and software logic must be prototyped on-site during the sprint.',
+      '100% IP Ownership: Squads retain all proprietary ownership and commercialization rights.',
+      'Hardware Safety: All custom electronic rigs must pass initial mentor inspection prior to AC power connection.',
+      'Submission: Working demo video and public repository required.',
+      'Code of Conduct: Collegiate circuit community code strictly in effect.'
+    ],
     bounties: [
       { track: 'Hardware Lab Grand Prize', prize: '$12,000', sponsor: 'Penn Engineering' },
       { track: 'Next-Gen Payment Infrastructure', prize: '$10,000', sponsor: 'Stripe' },
@@ -559,14 +634,17 @@ export const initialHackathons = [
       partnerType: 'Ecosystem Partner'
     },
     dates: 'Nov 20–22, 2026',
+    startDate: 'Nov 20, 2026 · 4:00 PM PT',
+    endDate: 'Nov 22, 2026 · 3:00 PM PT',
     location: 'Palace of Fine Arts, San Francisco, CA',
     mode: 'in-person',
     prizePool: '$125,000 Bounties',
-    squadLimits: '1–5 Builders',
+    squadLimits: '1 to 5 Builders',
     freeEntry: true,
+    registrationFee: '100% Free (Staking Stake Returned at Door)',
     status: 'open',
-    statusLabel: 'Registration Open',
-    registrationDeadline: 'Nov 10, 2026',
+    statusLabel: 'Registration open',
+    registrationDeadline: 'Nov 10, 2026 at 11:59 PM PT',
     isFeatured: false,
     isVerified: true,
     tier: 'Tier-1 Global Sanctioned',
@@ -578,6 +656,22 @@ export const initialHackathons = [
     coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     seekersCount: 29,
     description: 'Premier hackathon dedicated to decentralized protocols, smart contract execution, and autonomous on-chain agents. Connect with leading protocol engineers and founders.',
+    eligibility: 'Open to enrolled collegiate developers and student founders. Staking deposit refunded in full upon on-site badge scan.',
+    teamRequirements: 'Teams of 1 to 5 members. Multi-disciplinary builder groups (contracts, UX, distributed nodes) encouraged.',
+    officialRegistrationLink: 'https://ethglobal.com/events/sanfrancisco2026',
+    lastVerified: {
+      verifiedAt: 'Sep 22, 2026, 18:00 PT',
+      verifier: 'Web3 Campus Collegiate Alliance',
+      circuitSanction: 'BC-CIRC-2026-05',
+      notes: 'Prize smart contracts deployed on Sepolia for automated audit.'
+    },
+    rules: [
+      'Fresh Contract Deployment: Smart contracts submitted for prize evaluation must be deployed to testnet or mainnet during the hacking window.',
+      'Open Source Requirement: Repositories must be public and licensed under open source (MIT/Apache 2.0).',
+      'Team Allocation: 1-5 builders per registered project.',
+      'Live Demonstration: Working frontends interacting with verified smart contracts.',
+      'Security Standards: Malicious code or testnet exploits will result in immediate disqualification and circuit banning.'
+    ],
     bounties: [
       { track: 'Best Autonomous AI On-Chain Agent', prize: '$20,000', sponsor: 'Base & Coinbase' },
       { track: 'Privacy & ZK Circuits', prize: '$15,000', sponsor: 'Aztec Network' },
@@ -604,14 +698,17 @@ export const initialHackathons = [
       partnerType: 'Collegiate Host'
     },
     dates: 'Sep 19–21, 2026',
-    location: 'Cambridge, MA',
+    startDate: 'Sep 19, 2026 · 5:00 PM ET',
+    endDate: 'Sep 21, 2026 · 2:00 PM ET',
+    location: 'MIT Campus, Cambridge, MA',
     mode: 'in-person',
     prizePool: '$35,000 Awarded',
-    squadLimits: '2–4 Builders',
+    squadLimits: '2 to 4 Builders',
     freeEntry: true,
-    status: 'finished',
-    statusLabel: 'Event Concluded',
-    registrationDeadline: 'Concluded Sep 10, 2026',
+    registrationFee: '100% Free',
+    status: 'closed',
+    statusLabel: 'Registration closed',
+    registrationDeadline: 'Sep 10, 2026 (Event Concluded)',
     isFeatured: false,
     isVerified: true,
     tier: 'Tier-1 Global Sanctioned',
@@ -624,6 +721,20 @@ export const initialHackathons = [
     podiumBadge: '3 BuildCrew Podium Teams',
     archiveHighlight: 'First place won by BuildCrew squad "NeuroMesh" ($15,000 grant)',
     description: 'MIT’s premier collegiate hackathon. Over 1,000 hackers convened to prototype software and hardware solutions over 24 continuous hacking hours.',
+    eligibility: 'Event concluded. Archived for collegiate podium rankings and verified squad portfolio credentials.',
+    teamRequirements: 'Squads had 2 to 4 members. Official winners registered in circuit record books.',
+    officialRegistrationLink: 'https://hackmit.org/archive/2026',
+    lastVerified: {
+      verifiedAt: 'Sep 21, 2026, 20:00 ET',
+      verifier: 'MIT Tech Club Organizing Board',
+      circuitSanction: 'BC-CIRC-2026-ARCH',
+      notes: 'Final winners and code repositories audited and archived in BuildCrew Hall of Fame.'
+    },
+    rules: [
+      'Official competition concluded and archived.',
+      'Podium code repositories audited for open integrity.',
+      'Grants disbursed via escrow to winning student teams.'
+    ],
     bounties: [
       { track: 'Grand Prize 1st Place', prize: '$15,000', sponsor: 'BuildCrew & MIT Alliance' },
       { track: 'Best AI Inference Engine', prize: '$10,000', sponsor: 'NVIDIA' },
@@ -633,7 +744,7 @@ export const initialHackathons = [
       { phase: 'Event Concluded & Judging Complete', date: 'Sep 21, 2026', status: 'completed' }
     ]
   }
-];
+].map(h => ({ isPublished: true, ...h }));
 
 export const initialSquadWins = [
   {
@@ -734,5 +845,221 @@ export const initialApplications = [
     status: 'Interview Scheduled',
     statusColor: 'bg-surface-container-highest text-secondary',
     note: 'Rahul sent you a Discord invite for a 15-min sprint alignment call.'
+  }
+];
+
+export const mockAccounts = [
+  {
+    id: 'admin-founder-1',
+    email: 'jayanth@buildcrew.com',
+    password: 'buildcrew123',
+    name: 'Jayanth V.',
+    role: 'admin',
+    title: 'Founder & Lead Architect',
+    organization: 'BuildCrew Core Team',
+    university: 'Stanford University (Founder)',
+    avatar: 'https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG'
+  },
+  {
+    id: 'admin-founder-2',
+    email: 'praveen@buildcrew.com',
+    password: 'buildcrew123',
+    name: 'Praveen K.',
+    role: 'admin',
+    title: 'Co-Founder & Operations Lead',
+    organization: 'BuildCrew Core Team',
+    university: 'Stanford University (Founder)',
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBCM4VJ_y3eQXx_ZHkdkypEkb7yiKToP7XJhWP_YDFlZfxGJ3MN3udbXoX2FRhx3dPmQ-yEZqmNebAKWJ2h-grRjGY_of0K2uTM7Rok4fj5vO6Wj8jTyql1s2JZDvTJ5Q-jxt9ivZlV-bmHx6XBuaV01dsed81fwl7nVCB0T-4u31a-tkPM2tapPgPF3vFcTY3wg4K8hcQrf0I7v4NTXkQxco37OGKfcQ9quJb_twlg0XiCwWPYsXe_'
+  },
+  {
+    id: 'user-student-core',
+    email: 'student@buildcrew.com',
+    password: 'buildcrew123',
+    name: 'Alex Rivera',
+    role: 'student',
+    university: 'Stanford University',
+    major: 'Computer Science',
+    gradYear: '2026',
+    bio: 'Junior CS student passionate about collegiate hackathons and web development.',
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
+  },
+  {
+    id: 'admin-alias',
+    email: 'admin@buildcrew.com',
+    password: 'buildcrew123',
+    name: 'BuildCrew Admin',
+    role: 'admin',
+    title: 'Founder & Admin',
+    organization: 'BuildCrew',
+    university: 'Stanford University',
+    avatar: 'https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG'
+  },
+  {
+    id: 'user-student-1',
+    email: 'student@stanford.edu',
+    password: 'buildcrew123',
+    name: 'Alex Rivera',
+    role: 'student',
+    university: 'Stanford University',
+    major: 'Computer Science',
+    gradYear: '2026',
+    bio: 'Junior CS student passionate about web applications and hackathon sprint teams.',
+    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
+  },
+  {
+    id: 'user-student-2',
+    email: 'jayanth@stanford.edu',
+    password: 'buildcrew123',
+    name: 'Jayanth V.',
+    role: 'student',
+    university: 'Stanford University',
+    major: 'Computer Science',
+    gradYear: '2026',
+    bio: 'Junior CS student specializing in distributed systems and real-time collaboration engines.',
+    avatar: 'https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG'
+  }
+];
+
+export const initialHackathonSquads = [
+  {
+    id: 'squad-studysync',
+    hackathonId: 'hacknova-2026',
+    hackathonTitle: 'HACKNOVA 2026',
+    title: 'StudySync AI',
+    track: 'Autonomic Agents & LLM Swarms',
+    tagline: 'Multi-modal seminar synthesis engine for HackNova 2026',
+    description: 'We are engineering an asynchronous agent graph that ingests real-time seminar audio and slides into a collaborative vector canvas. Looking for a strong frontend canvas developer and a prompt evaluation engineer.',
+    techStack: ['React 19', 'FastAPI', 'Fabric.js', 'Pinecone', 'WebSockets'],
+    filledCount: 2,
+    totalCapacity: 4,
+    syncSchedule: 'Sunday 7:00 PM PT (Discord Stage)',
+    lead: {
+      name: 'Maya Chen',
+      university: 'Stanford CS \'26',
+      role: 'Lead Architect & ML Infra',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDj8rfKgKGYJOxl-peX0YLvOw6ySeIhn0XjE0cX3j7Pea0oBM1HHLCSYm-k4lm5vWUqCF1VtVwXY0QESMoDaSSF9tk9aQWB0T3D2BZDM6Ezy_23eymF3i6G6fes0oJ3aEM1-5XWifWl_PNo-39urmN5Q8g2NLDqQ2Lv6TE46GTEVc1EzdkGgpKT8Lge4aiJw7Uny0uDg47QiOKXP2wcPXRP3iufmQ9sldhgwMnZhOUilqmfFcPuoxbX'
+    },
+    members: [
+      {
+        name: 'Maya Chen',
+        university: 'Stanford CS \'26',
+        role: 'Lead Architect',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDj8rfKgKGYJOxl-peX0YLvOw6ySeIhn0XjE0cX3j7Pea0oBM1HHLCSYm-k4lm5vWUqCF1VtVwXY0QESMoDaSSF9tk9aQWB0T3D2BZDM6Ezy_23eymF3i6G6fes0oJ3aEM1-5XWifWl_PNo-39urmN5Q8g2NLDqQ2Lv6TE46GTEVc1EzdkGgpKT8Lge4aiJw7Uny0uDg47QiOKXP2wcPXRP3iufmQ9sldhgwMnZhOUilqmfFcPuoxbX'
+      },
+      {
+        name: 'Alex Vance',
+        university: 'Stanford CS \'25',
+        role: 'Model Inference',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBCM4VJ_y3eQXx_ZHkdkypEkb7yiKToP7XJhWP_YDFlZfxGJ3MN3udbXoX2FRhx3dPmQ-yEZqmNebAKWJ2h-grRjGY_of0K2uTM7Rok4fj5vO6Wj8jTyql1s2JZDvTJ5Q-jxt9ivZlV-bmHx6XBuaV01dsed81fwl7nVCB0T-4u31a-tkPM2tapPgPF3vFcTY3wg4K8hcQrf0I7v4NTXkQxco37OGKfcQ9quJb_twlg0XiCwWPYsXe_'
+      }
+    ],
+    openVacancies: [
+      {
+        title: 'Frontend & Canvas Engineer',
+        seats: '1 seat open',
+        skills: ['React 19', 'Fabric.js', 'Tailwind', 'WebSockets'],
+        hours: '10–12 hrs/week'
+      },
+      {
+        title: 'Evaluation & Benchmarks Dev',
+        seats: '1 seat open',
+        skills: ['Python', 'RAG Eval', 'Prompt Optimization'],
+        hours: '8–10 hrs/week'
+      }
+    ]
+  },
+  {
+    id: 'squad-zeromesh',
+    hackathonId: 'hacknova-2026',
+    hackathonTitle: 'HACKNOVA 2026',
+    title: 'ZeroMesh Verifier',
+    track: 'Verifiable Hardware Security',
+    tagline: 'Cryptographic proof layer for edge sensor telemetry',
+    description: 'Designing zero-knowledge verification proofs for embedded IoT devices. Aiming for the $12,000 Intel Labs bounty at HackNova.',
+    techStack: ['Circom', 'Rust', 'ESP32', 'Next.js'],
+    filledCount: 3,
+    totalCapacity: 4,
+    syncSchedule: 'Tuesdays 8:00 PM ET',
+    lead: {
+      name: 'Elena Rostova',
+      university: 'MIT EECS PhD',
+      role: 'Cryptographic Systems Lead',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
+    },
+    members: [
+      {
+        name: 'Elena Rostova',
+        university: 'MIT EECS PhD',
+        role: 'ZK Lead',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
+      },
+      {
+        name: 'Rahul Sharma',
+        university: 'Carnegie Mellon ECE',
+        role: 'Hardware Firmware',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBnmEZNtZGZBJt86mDapjBMA0jOqw7hClt5LtW8N3lZ1PQ1ZC9mxCwRPM0ZfJRe8FPjziwi8z-_eN14d36A7R-ixuMvlxN0uo5C1tIcO3PKyrDcVXCOAHrzgD10dDNX-1ahjrVulehRiTbJcd-o8XWvwMCQ-wXRLPvIzrI5cQ5jr2JctNHGF-GIFCXFEKkq3h6Ubriud652-Lvq5GUFgOVhef4OgN8z8bnkWKXgL3usgFpNzAG4LBHY'
+      },
+      {
+        name: 'David Kim',
+        university: 'Harvard CS \'26',
+        role: 'Verification Testing',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCBnDqHq7n8m_K6j4eGKbfcjul0Rdr1QG5Ai8saCMYCXkObI8mE9oih96TixdnmcMXtFEQlqlJewoM56m3xVQh80IrQnjI75C0okcQgPtX5VRLyQyG1xncpm5xM1SIeGzIhdLzcGFIWr8ybJVxQlX3eAktW5BI5tcsgx9mTd85e_M5KIx3k4DKPbO4vVPaoJaaSIwqtLbYIOZafGhQxDeE9kN9GO3OSsDJWyLRvcTHafkjcPmV0Rs2I'
+      }
+    ],
+    openVacancies: [
+      {
+        title: 'Fullstack Explorer Dev',
+        seats: '1 seat open',
+        skills: ['TypeScript', 'React', 'Tailwind', 'Ethers.js'],
+        hours: '8 hrs/week'
+      }
+    ]
+  },
+  {
+    id: 'squad-biopulse',
+    hackathonId: 'treehacks-2026',
+    hackathonTitle: 'Stanford TreeHacks 2026',
+    title: 'BioPulse On-Device',
+    track: 'Health & Bio Track',
+    tagline: 'Edge acoustic biomarker detector for cardiovascular murmurs',
+    description: 'Competing for the $7,000 Stanford Bio-X track at TreeHacks. Leveraging lightweight spectrogram CNNs running locally on mobile devices.',
+    techStack: ['Flutter', 'TensorFlow Lite', 'FastAPI', 'Python'],
+    filledCount: 2,
+    totalCapacity: 4,
+    syncSchedule: 'Thursdays 6:00 PM PT',
+    lead: {
+      name: 'Sarah Jenkins',
+      university: 'Georgia Tech \'26',
+      role: 'Sensor & Signal Lead',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQ4L7we6LwbEsUj0RFqsg_rHzUjOuupTLlSo7mO7Spl-y4GdefKVfGecoaKgcF0XJ1VvW2j45ctDUZ4nxXbPfiJJNw2MKtCGo_xrr7hn7AOUc3pwPcQQ9uK4oE0mGO8B9rNXJKD3s9DSXWfXNllo9tyj-c7PYNiG7UJXRc2V8LVJhPAxT9LHLBLOqOGmkOAPdjqZt_WY66eWyYy_R9PMmoU7Jw-0bJD9sgc_70JjzrkZygUQ_mUfLB'
+    },
+    members: [
+      {
+        name: 'Sarah Jenkins',
+        university: 'Georgia Tech \'26',
+        role: 'Sensor Lead',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQ4L7we6LwbEsUj0RFqsg_rHzUjOuupTLlSo7mO7Spl-y4GdefKVfGecoaKgcF0XJ1VvW2j45ctDUZ4nxXbPfiJJNw2MKtCGo_xrr7hn7AOUc3pwPcQQ9uK4oE0mGO8B9rNXJKD3s9DSXWfXNllo9tyj-c7PYNiG7UJXRc2V8LVJhPAxT9LHLBLOqOGmkOAPdjqZt_WY66eWyYy_R9PMmoU7Jw-0bJD9sgc_70JjzrkZygUQ_mUfLB'
+      },
+      {
+        name: 'Michael Torres',
+        university: 'Stanford BioE \'25',
+        role: 'Clinical Data Validator',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAPypdllsjXA2SDKEUO6iV9jbI3v9sf1sJ8ACrhCFvaT0BaPrA516WVQSIK8RL0Ep85ub5Sxeb1Pivav0rlRUQbEEpC9uK7z-LQLfQDyYeco7iFckrp0L83mzDq-uPbqGjShut168HkT22VfTCr1fWKZNjTrW83YhSefWPh7AAaetX5N54hVRRPuj47LI49uQCZlzJK0TAIy3hW7wwKdRjhyCi4NfpydAYy1ql96PKUrqBKoJlk-PGC'
+      }
+    ],
+    openVacancies: [
+      {
+        title: 'Mobile App Developer',
+        seats: '1 seat open',
+        skills: ['React Native', 'Flutter', 'Audio API'],
+        hours: '10 hrs/week'
+      },
+      {
+        title: 'ML Audio Signal Specialist',
+        seats: '1 seat open',
+        skills: ['PyTorch', 'Spectrograms', 'ONNX'],
+        hours: '10 hrs/week'
+      }
+    ]
   }
 ];

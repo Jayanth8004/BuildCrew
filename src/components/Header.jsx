@@ -6,10 +6,14 @@ export default function Header({
   setSearchQuery,
   onSearchFocus,
   notificationCount = 2,
-  onNavigateProfile
+  onNavigateProfile,
+  currentUser,
+  onLogout,
+  onOpenAdminDashboard
 }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleInputChange = (e) => {
     setSearchQuery(e.target.value);
@@ -51,7 +55,7 @@ export default function Header({
 
         <div className="hidden lg:flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-container text-on-surface font-label-md text-label-md select-none">
           <span className="material-symbols-outlined text-secondary text-base leading-none">school</span>
-          <span>Stanford University</span>
+          <span>{currentUser?.university || 'Stanford University'}</span>
           <span className="text-outline-variant">•</span>
           <span className="text-on-surface-variant font-medium">Fall 2026</span>
         </div>
@@ -59,6 +63,18 @@ export default function Header({
 
       {/* Right: Actions & Profile */}
       <div className="flex items-center gap-space-sm relative">
+        {/* Admin Quick Switch (if current user is admin previewing student view) */}
+        {currentUser?.role === 'admin' && (
+          <button
+            type="button"
+            onClick={onOpenAdminDashboard}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary text-on-secondary font-bold text-xs shadow-xs hover:bg-secondary/90 transition-all cursor-pointer mr-1"
+          >
+            <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+            <span>Manage Hackathons</span>
+          </button>
+        )}
+
         {/* Activity Feed Button */}
         <div className="relative">
           <button 
@@ -93,7 +109,7 @@ export default function Header({
                 <div className="flex gap-2.5 items-start">
                   <span className="w-2 h-2 rounded-full bg-secondary mt-1.5 shrink-0"></span>
                   <div>
-                    <span className="font-semibold text-on-surface">CalHacks 12</span> travel subsidies released for West Coast applicants.
+                    <span className="font-semibold text-on-surface">CalHacks 12</span> team registration opened for West Coast applicants.
                     <span className="block text-outline text-[11px] mt-0.5">2h ago</span>
                   </div>
                 </div>
@@ -147,13 +163,75 @@ export default function Header({
 
         <div className="h-5 w-px bg-surface-container-high mx-1"></div>
 
-        {/* Profile Avatar Button */}
-        <img 
-          alt="Profile" 
-          onClick={onNavigateProfile}
-          className="w-8 h-8 rounded-full object-cover shadow-[0_1px_3px_rgba(15,23,42,0.08)] cursor-pointer hover:ring-2 hover:ring-secondary/40 transition-all" 
-          src="https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG"
-        />
+        {/* Profile Avatar Button & Menu */}
+        <div className="relative">
+          <img 
+            alt="Profile" 
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="w-8 h-8 rounded-full object-cover shadow-[0_1px_3px_rgba(15,23,42,0.08)] cursor-pointer hover:ring-2 hover:ring-secondary/40 transition-all" 
+            src={currentUser?.avatar || "https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG"}
+          />
+
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-64 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container-high p-3 z-50 animate-modal">
+              <div className="p-2.5 rounded-xl bg-surface-container-low mb-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-on-surface">{currentUser?.name || 'Jayanth V.'}</span>
+                  <span className={`px-2 py-0.2 rounded-full text-[10px] font-extrabold uppercase ${
+                    currentUser?.role === 'admin' ? 'bg-secondary text-on-secondary' : 'bg-secondary-fixed text-on-secondary-fixed'
+                  }`}>
+                    {currentUser?.role === 'admin' ? 'Admin' : 'Student'}
+                  </span>
+                </div>
+                <div className="text-[11px] text-on-surface-variant truncate mt-0.5">
+                  {currentUser?.email || 'jayanth@stanford.edu'}
+                </div>
+              </div>
+
+              <div className="space-y-1 text-xs">
+                {currentUser?.role === 'admin' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      if (onOpenAdminDashboard) onOpenAdminDashboard();
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-xl hover:bg-surface-container font-semibold text-secondary flex items-center gap-2 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+                    <span>Manage Hackathons</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUserMenu(false);
+                    onNavigateProfile();
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-surface-container font-medium text-on-surface flex items-center gap-2 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">account_circle</span>
+                  <span>My Profile</span>
+                </button>
+
+                {onLogout && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-xl hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2 cursor-pointer border-t border-surface-container-high/60 mt-1 pt-1.5"
+                  >
+                    <span className="material-symbols-outlined text-base">logout</span>
+                    <span>Sign Out</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -11,42 +11,47 @@ export default function HackathonSquadUpModal({
   onCreateSquad,
   showToast
 }) {
-  const [activeTab, setActiveTab] = useState('squads'); // 'squads' | 'builders' | 'create'
-  const [appliedSquads, setAppliedSquads] = useState({});
+  const [activeTab, setActiveTab] = useState('find-teammates'); // 'find-teammates' | 'teams' | 'create'
+  const [appliedTeams, setAppliedTeams] = useState({});
   const [invitedBuilders, setInvitedBuilders] = useState({});
+  const [teamFormedNotice, setTeamFormedNotice] = useState(null);
 
-  // Create Squad Form state
-  const [squadTitle, setSquadTitle] = useState('');
+  // Simple Create Team Form state
+  const [teamName, setTeamName] = useState('');
   const [selectedTrack, setSelectedTrack] = useState('');
-  const [rolesNeeded, setRolesNeeded] = useState('Frontend Engineer, AI/ML Specialist');
-  const [squadPitch, setSquadPitch] = useState('');
+  const [rolesNeeded, setRolesNeeded] = useState('Frontend, Backend / AI');
+  const [projectIdea, setProjectIdea] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen || !hackathon) return null;
 
+  const regLink = hackathon.officialRegistrationLink || (typeof hackathon.organizer === 'object' ? hackathon.organizer?.website : '') || '#';
+  const orgName = typeof hackathon.organizer === 'object' ? hackathon.organizer?.name : hackathon.organizer || 'Organizing Board';
+
   // Filter squads relevant to this hackathon
-  const hackathonSquads = projects.filter(p => {
+  const hackathonTeams = projects.filter(p => {
     const titleMatch = p.categoryBadge?.toLowerCase().includes(hackathon.title.toLowerCase().split(' ')[0].toLowerCase());
     const hackNovaMatch = hackathon.id.includes('hacknova') && (p.categoryBadge?.includes('HackNova') || p.id === 'studysync-ai');
-    const treeHacksMatch = hackathon.id.includes('treehacks') && (p.categoryBadge?.includes('TreeHacks') || p.sprintNotice?.includes('TreeHacks') || p.id === 'studysync-ai');
-    return titleMatch || hackNovaMatch || treeHacksMatch || true; // Fallback to relevant active squads
+    const treeHacksMatch = hackathon.id.includes('treehacks') && (p.categoryBadge?.includes('TreeHacks') || p.id === 'studysync-ai');
+    return titleMatch || hackNovaMatch || treeHacksMatch || true;
   }).slice(0, 4);
 
-  const handleApply = (squad) => {
-    setAppliedSquads(prev => ({ ...prev, [squad.id]: true }));
+  const handleApply = (team) => {
+    setAppliedTeams(prev => ({ ...prev, [team.id]: true }));
     if (onApplySquad) {
       onApplySquad({
-        projectId: squad.id,
-        projectTitle: squad.title,
-        role: squad.openVacancies?.[0]?.title || 'Core Squad Contributor',
+        projectId: team.id,
+        projectTitle: team.title,
+        role: team.openVacancies?.[0]?.title || 'Core Team Member',
         submittedAt: 'Just now',
         status: 'Pending Lead Review',
         statusColor: 'bg-secondary-fixed text-on-secondary-fixed',
-        note: `Applied to join ${squad.title} for ${hackathon.title}.`
+        note: `Applied to join ${team.title} for ${hackathon.title}.`
       });
     }
+    setTeamFormedNotice(`Applied to join ${team.title}! Once accepted, your team is formed. Remember to register officially.`);
     if (showToast) {
-      showToast(`Application submitted to ${squad.lead?.name || 'squad lead'} for ${hackathon.title}!`);
+      showToast(`Request sent to ${team.lead?.name || 'team lead'} for ${hackathon.title}!`);
     }
   };
 
@@ -55,32 +60,33 @@ export default function HackathonSquadUpModal({
     if (onInviteBuilder) {
       onInviteBuilder(builder.name);
     }
+    setTeamFormedNotice(`Invitation sent to ${builder.name}! You can now coordinate your squad and complete official registration.`);
     if (showToast) {
-      showToast(`Squad invitation dispatched to ${builder.name}!`);
+      showToast(`Team invitation dispatched to ${builder.name}!`);
     }
   };
 
   const handleCreateSubmit = (e) => {
     e.preventDefault();
-    if (!squadTitle.trim()) return;
+    if (!teamName.trim()) return;
 
     setIsSubmitting(true);
     setTimeout(() => {
-      const newSquad = {
+      const newTeam = {
         id: `squad-${Date.now()}`,
-        title: squadTitle,
-        fullTitle: `${squadTitle} — ${hackathon.title} Squad`,
-        tagline: squadPitch || `Building for ${hackathon.title} in ${selectedTrack || 'General Track'}`,
-        fullDescription: squadPitch,
+        title: teamName,
+        fullTitle: `${teamName} — ${hackathon.title} Team`,
+        tagline: projectIdea || `Building for ${hackathon.title} in ${selectedTrack || 'General Track'}`,
+        fullDescription: projectIdea,
         type: 'hackathon',
-        categoryBadge: hackathon.title.split(' ')[0] + ' 2026',
-        recruitingBadge: 'Recruiting 2 Roles',
+        categoryBadge: hackathon.title.split(' ')[0],
+        recruitingBadge: 'Recruiting Members',
         urgency: 'high',
-        matchScore: 96,
+        matchScore: 98,
         publishedTime: 'Just now',
         image: hackathon.heroImage || hackathon.coverImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBjbkVkD8ugQCopgjlKUdX6h2t7iGR8U7cAotGEX4gkVp2iZGYgNXuhDd7uv8XKPdDKxRc5LVG5-2ku_w-inG49pGRXEBeatfaGIbtDqTB4GZbf-12sVHdMJBR4s9dSwOvIgdwjHPZxHAYY6iul7GnOXO1wqM8s9NQjaFCIpekgajipka8rL8aNXyl4sNuZ5jWKKChl91y1bgaayoCYgzuMAvhhpxODIRFzAx9FdSUbydfyLDzrLu9E',
         imageTag: selectedTrack || 'Hackathon Sprint',
-        techStack: ['React 19', 'FastAPI', 'Tailwind', 'Python'],
+        techStack: ['React', 'FastAPI', 'Python', 'Tailwind'],
         rolesNeeded: rolesNeeded.split(',').map(r => r.trim()).filter(Boolean),
         campus: 'stanford',
         filledCount: 1,
@@ -88,29 +94,29 @@ export default function HackathonSquadUpModal({
         lead: {
           name: 'Jayanth V.',
           university: 'Stanford CS \'26',
-          roleTitle: 'Squad Founder',
+          roleTitle: 'Team Creator',
           avatar: 'https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG'
         },
         openVacancies: rolesNeeded.split(',').map((r, i) => ({
           id: `vac-${i}`,
-          track: 'Core Contributor',
+          track: 'Core Member',
           title: r.trim(),
           seats: '1 seat open',
-          desc: `Looking for a strong ${r.trim()} to build for ${hackathon.title}.`,
+          desc: `Looking for a ${r.trim()} to build for ${hackathon.title}.`,
           skills: ['Problem Solving', 'Git', 'Fast Prototyping'],
-          hours: '10–12 hrs / week'
+          hours: 'Hackathon Sprint'
         }))
       };
 
       if (onCreateSquad) {
-        onCreateSquad(newSquad);
+        onCreateSquad(newTeam);
       }
       setIsSubmitting(false);
-      onClose();
+      setTeamFormedNotice(`Team "${teamName}" created! Next step: Complete your team registration on the official portal.`);
       if (showToast) {
-        showToast(`Squad "${squadTitle}" registered for ${hackathon.title}!`);
+        showToast(`Team "${teamName}" registered for ${hackathon.title}!`);
       }
-    }, 600);
+    }, 500);
   };
 
   return (
@@ -151,46 +157,67 @@ export default function HackathonSquadUpModal({
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                Squad Up for {hackathon.title}
+                Build a Team · {hackathon.title}
               </h2>
               <p className="text-xs text-blue-200/90 font-medium mt-0.5">
-                Join verified teams, scout solo hackers, or register your own squad.
+                Find teammates, join existing teams, or register a new team for {orgName}.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Tab Switcher */}
+        {/* Team Formed Success Banner (Requirement 7 Flow) */}
+        {teamFormedNotice && (
+          <div className="p-3.5 bg-emerald-50 border-b border-emerald-200 text-xs text-emerald-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0 animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
+              <span className="font-semibold">{teamFormedNotice}</span>
+            </div>
+            {regLink !== '#' && (
+              <a
+                href={regLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all shrink-0 self-start sm:self-auto"
+              >
+                <span>Official Registration</span>
+                <span className="material-symbols-outlined text-sm">open_in_new</span>
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Tab Switcher: Find Teammates, Existing Teams, Create Team */}
         <div className="flex items-center gap-1 px-4 sm:px-6 pt-2.5 border-b border-surface-container-high bg-surface-container-low shrink-0">
           <button
             type="button"
-            onClick={() => setActiveTab('squads')}
+            onClick={() => setActiveTab('find-teammates')}
             className={`pb-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'squads'
-                ? 'border-secondary text-secondary'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <span className="material-symbols-outlined text-base">groups</span>
-            <span>Active Squads</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-extrabold">
-              {hackathonSquads.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab('builders')}
-            className={`pb-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'builders'
+              activeTab === 'find-teammates'
                 ? 'border-secondary text-secondary'
                 : 'border-transparent text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <span className="material-symbols-outlined text-base">person_search</span>
-            <span>Solo Hackers Seeking Squad</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-extrabold">
+            <span>Find Teammates</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-extrabold">
               {builders.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('teams')}
+            className={`pb-2.5 px-3 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'teams'
+                ? 'border-secondary text-secondary'
+                : 'border-transparent text-on-surface-variant hover:text-on-surface'
+            }`}
+          >
+            <span className="material-symbols-outlined text-base">groups</span>
+            <span>Existing Teams</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-surface-container-high text-on-surface-variant text-[10px] font-extrabold">
+              {hackathonTeams.length}
             </span>
           </button>
 
@@ -204,184 +231,181 @@ export default function HackathonSquadUpModal({
             }`}
           >
             <span className="material-symbols-outlined text-base">add_circle</span>
-            <span>+ Create Squad</span>
+            <span>+ Create Team</span>
           </button>
         </div>
 
         {/* Modal Scrollable Body */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
-          {/* TAB 1: ACTIVE SQUADS */}
-          {activeTab === 'squads' && (
+          {/* TAB 1: FIND TEAMMATES (Invite) */}
+          {activeTab === 'find-teammates' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-on-surface-variant font-medium">
-                <span>Verified student teams actively scouting teammates for {hackathon.title}:</span>
-                <span className="text-secondary font-bold">Direct Lead Review</span>
+                <span>College students seeking a team for {hackathon.title}:</span>
+                <span className="text-secondary font-bold">1-Click Invite</span>
               </div>
 
-              {hackathonSquads.map((squad) => {
-                const isApplied = appliedSquads[squad.id];
-                const openCount = squad.totalCapacity - squad.filledCount;
-                return (
-                  <div
-                    key={squad.id}
-                    className="p-4 rounded-2xl bg-surface-container-low border border-surface-container-high/70 hover:border-secondary/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="space-y-1.5 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-title-md font-bold text-on-surface truncate">
-                          {squad.title}
-                        </h4>
-                        <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold shrink-0">
-                          {openCount} {openCount === 1 ? 'seat open' : 'seats open'}
-                        </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {builders.map((builder) => {
+                  const isInvited = invitedBuilders[builder.id];
+                  return (
+                    <div
+                      key={builder.id}
+                      className="p-3.5 rounded-2xl bg-surface-container-low border border-surface-container-high flex flex-col justify-between space-y-3"
+                    >
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={builder.avatar}
+                          alt={builder.name}
+                          className="w-10 h-10 rounded-full object-cover ring-1 ring-secondary/30 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-xs sm:text-sm text-on-surface truncate">
+                            {builder.name}
+                          </h4>
+                          <p className="text-[11px] text-on-surface-variant truncate">
+                            {builder.university} · {builder.year}
+                          </p>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {builder.skills?.slice(0, 3).map((skill, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className="px-2 py-0.5 rounded-md bg-surface-container text-on-surface text-[10px] font-semibold"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-xs text-on-surface-variant line-clamp-1">
-                        {squad.tagline}
-                      </p>
 
-                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                        <span className="text-[11px] font-bold text-secondary">Seeking:</span>
-                        {squad.openVacancies?.map((v, vidx) => (
-                          <span
-                            key={vidx}
-                            className="px-2 py-0.5 rounded-md bg-surface-container-lowest text-on-surface text-[11px] font-semibold border border-surface-container-high/60"
-                          >
-                            {v.title}
+                      <div className="pt-2 border-t border-surface-container-high/60 flex items-center justify-between">
+                        <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                          Available
+                        </span>
+                        <button
+                          type="button"
+                          disabled={isInvited}
+                          onClick={() => handleInvite(builder)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                            isInvited
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-primary hover:bg-surface-tint text-on-primary shadow-xs'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-sm">
+                            {isInvited ? 'check' : 'person_add'}
                           </span>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-1 text-[11px] text-on-surface-variant">
-                        <img src={squad.lead?.avatar} alt={squad.lead?.name} className="w-4 h-4 rounded-full object-cover" />
-                        <span>Lead: <strong className="text-on-surface">{squad.lead?.name}</strong> ({squad.lead?.university})</span>
-                        <span>•</span>
-                        <span>{squad.filledCount}/{squad.totalCapacity} Members</span>
+                          <span>{isInvited ? 'Invited' : 'Invite to Team'}</span>
+                        </button>
                       </div>
                     </div>
-
-                    <div className="shrink-0 pt-2 sm:pt-0">
-                      <button
-                        type="button"
-                        onClick={() => handleApply(squad)}
-                        disabled={isApplied}
-                        className={`w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                          isApplied
-                            ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                            : 'bg-primary hover:bg-surface-tint text-on-primary shadow-sm active:scale-[0.98]'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-sm">
-                          {isApplied ? 'check_circle' : 'bolt'}
-                        </span>
-                        <span>{isApplied ? 'Application Sent' : 'Request to Join Squad'}</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {/* TAB 2: SOLO BUILDERS SEEKING SQUAD */}
-          {activeTab === 'builders' && (
+          {/* TAB 2: EXISTING TEAMS (Join) */}
+          {activeTab === 'teams' && (
             <div className="space-y-3">
-              <div className="text-xs text-on-surface-variant font-medium">
-                Verified student technologists seeking squads for {hackathon.title}:
+              <div className="flex items-center justify-between text-xs text-on-surface-variant font-medium">
+                <span>Teams currently recruiting members for {hackathon.title}:</span>
+                <span className="text-secondary font-bold">Request to Join</span>
               </div>
 
-              {builders.map((builder) => {
-                const isInvited = invitedBuilders[builder.id];
-                return (
-                  <div
-                    key={builder.id}
-                    className="p-3.5 rounded-2xl bg-surface-container-low border border-surface-container-high/70 flex items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <img src={builder.avatar} alt={builder.name} className="w-11 h-11 rounded-xl object-cover shrink-0" />
-                      <div className="min-w-0">
+              <div className="space-y-3">
+                {hackathonTeams.map((team) => {
+                  const isApplied = appliedTeams[team.id];
+                  return (
+                    <div
+                      key={team.id}
+                      className="p-4 rounded-2xl bg-surface-container-low border border-surface-container-high flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
+                    >
+                      <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-title-sm font-bold text-on-surface truncate">
-                            {builder.name}
+                          <h4 className="font-title-md font-black text-on-surface">
+                            {team.title}
                           </h4>
-                          <span className="px-2 py-0.2 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">
-                            {builder.match}
+                          <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-extrabold">
+                            {team.filledCount || 2}/{team.totalCapacity || 4} Members
                           </span>
                         </div>
-                        <p className="text-xs text-secondary font-semibold truncate">
-                          {builder.role} · {builder.university}
+                        <p className="text-xs text-on-surface-variant leading-relaxed max-w-xl">
+                          {team.tagline}
                         </p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {builder.skills.slice(0, 3).map((sk, sidx) => (
-                            <span key={sidx} className="px-1.5 py-0.2 rounded bg-surface-container-lowest text-[10px] text-on-surface-variant font-medium">
-                              {sk}
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                          {team.techStack?.slice(0, 4).map((tech, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 rounded-md bg-surface-container text-on-surface text-[10px] font-semibold"
+                            >
+                              {tech}
                             </span>
                           ))}
                         </div>
                       </div>
-                    </div>
 
-                    <div className="shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleInvite(builder)}
-                        disabled={isInvited}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                          isInvited
-                            ? 'bg-surface-container text-secondary font-semibold'
-                            : 'bg-primary hover:bg-surface-tint text-on-primary shadow-xs'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-sm">
-                          {isInvited ? 'check' : 'person_add'}
-                        </span>
-                        <span>{isInvited ? 'Invited' : 'Invite'}</span>
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                        <button
+                          type="button"
+                          disabled={isApplied}
+                          onClick={() => handleApply(team)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            isApplied
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-primary hover:bg-surface-tint text-on-primary shadow-xs'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-sm">
+                            {isApplied ? 'done_all' : 'group_add'}
+                          </span>
+                          <span>{isApplied ? 'Requested' : 'Join Team'}</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {/* TAB 3: CREATE NEW SQUAD FOR THIS HACKATHON */}
+          {/* TAB 3: CREATE TEAM */}
           {activeTab === 'create' && (
             <form onSubmit={handleCreateSubmit} className="space-y-3.5">
-              <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-200/60 text-xs text-blue-900 flex items-center gap-2">
-                <span className="material-symbols-outlined text-blue-600 text-lg">flag</span>
+              <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-600 text-lg">info</span>
                 <span>
-                  Your squad will be automatically tagged with <strong>{hackathon.title}</strong> and listed in the circuit directory.
+                  Creating a team lets other students find and join your squad for {hackathon.title}. Once your team is ready, complete your official registration.
                 </span>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-on-surface mb-1">
-                  Squad / Project Idea Name
+                  Team Name *
                 </label>
                 <input
                   type="text"
                   required
-                  value={squadTitle}
-                  onChange={(e) => setSquadTitle(e.target.value)}
-                  placeholder="e.g. NeuroSync, VeriMesh, BioShield..."
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  placeholder="e.g. Stanford AI Innovators"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest text-xs sm:text-sm text-on-surface outline-none transition-all font-medium"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-on-surface mb-1">
-                  Target Prize Track
+                  Target Track
                 </label>
                 <select
                   value={selectedTrack}
                   onChange={(e) => setSelectedTrack(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest text-xs sm:text-sm text-on-surface outline-none transition-all font-medium cursor-pointer"
                 >
-                  <option value="">Select track bounty...</option>
-                  {hackathon.bounties?.map((b, bidx) => (
-                    <option key={bidx} value={b.track}>
-                      {b.track} ({b.prize})
-                    </option>
-                  )) || hackathon.trackLabels?.map((tl, tidx) => (
+                  <option value="">Select track (optional)</option>
+                  {hackathon.trackLabels?.map((tl, tidx) => (
                     <option key={tidx} value={tl}>{tl}</option>
                   ))}
                 </select>
@@ -389,28 +413,28 @@ export default function HackathonSquadUpModal({
 
               <div>
                 <label className="block text-xs font-bold text-on-surface mb-1">
-                  Roles Needed (comma separated)
+                  Teammates / Roles Needed
                 </label>
                 <input
                   type="text"
                   required
                   value={rolesNeeded}
                   onChange={(e) => setRolesNeeded(e.target.value)}
-                  placeholder="e.g. Frontend Lead, Python Backend, UX Designer"
+                  placeholder="e.g. Frontend Lead, ML Engineer, UI/UX"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest text-xs sm:text-sm text-on-surface outline-none transition-all font-medium"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-on-surface mb-1">
-                  Brief Pitch &amp; Tech Stack Plan
+                  Project Concept / Pitch
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   required
-                  value={squadPitch}
-                  onChange={(e) => setSquadPitch(e.target.value)}
-                  placeholder="What is your squad concept, what problem does it address, and what core technologies will you deploy?"
+                  value={projectIdea}
+                  onChange={(e) => setProjectIdea(e.target.value)}
+                  placeholder="Brief idea or problem statement your team intends to tackle during the hackathon..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest text-xs sm:text-sm text-on-surface outline-none transition-all font-medium resize-none"
                 />
               </div>
@@ -418,10 +442,10 @@ export default function HackathonSquadUpModal({
               <div className="pt-2 flex justify-end gap-2.5">
                 <button
                   type="button"
-                  onClick={() => setActiveTab('squads')}
-                  className="px-4 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-xs font-bold text-on-surface transition-all cursor-pointer"
+                  onClick={() => setActiveTab('find-teammates')}
+                  className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface transition-all cursor-pointer"
                 >
-                  Back to Squads
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -429,7 +453,7 @@ export default function HackathonSquadUpModal({
                   className="px-5 py-2 rounded-xl bg-primary hover:bg-surface-tint active:scale-[0.98] text-xs font-bold text-on-primary shadow-md transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <span className="material-symbols-outlined text-sm">rocket_launch</span>
-                  <span>{isSubmitting ? 'Registering Squad...' : 'Register Squad for ' + hackathon.title.split(' ')[0]}</span>
+                  <span>{isSubmitting ? 'Creating Team...' : `Register Team for ${hackathon.title.split(' ')[0]}`}</span>
                 </button>
               </div>
             </form>
@@ -437,18 +461,32 @@ export default function HackathonSquadUpModal({
         </div>
 
         {/* Footer info strip */}
-        <div className="p-3 sm:p-4 bg-surface-container-low border-t border-surface-container-high flex items-center justify-between text-xs text-on-surface-variant shrink-0">
-          <div className="flex items-center gap-2">
+        <div className="p-3.5 sm:p-4 bg-surface-container-low border-t border-surface-container-high flex items-center justify-between text-xs text-on-surface-variant shrink-0">
+          <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm text-secondary">verified_user</span>
-            <span>All squads adhere to the official collegiate circuit code of conduct.</span>
+            <span>All teams follow official collegiate event guidelines.</span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-secondary font-bold hover:underline cursor-pointer"
-          >
-            Close
-          </button>
+
+          <div className="flex items-center gap-3">
+            {regLink !== '#' && (
+              <a
+                href={regLink}
+                target="_blank"
+                rel="noreferrer"
+                className="text-secondary font-bold hover:underline inline-flex items-center gap-1"
+              >
+                <span>Official Registration</span>
+                <span className="material-symbols-outlined text-xs">open_in_new</span>
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-on-surface-variant hover:text-on-surface font-semibold cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import CommandPalette from './components/CommandPalette';
@@ -12,6 +12,9 @@ import FindBuilders from './views/FindBuilders';
 import MyApplications from './views/MyApplications';
 import MyProjects from './views/MyProjects';
 import Profile from './views/Profile';
+import Auth from './views/Auth';
+import AdminDashboard from './views/AdminDashboard';
+import AccessDenied from './views/AccessDenied';
 
 import {
   initialProjects,
@@ -22,7 +25,10 @@ import {
 } from './data/mockData';
 
 export default function App() {
+  // Authentication & Role Routing state
+  const [currentUser, setCurrentUser] = useState(null);
   const [activeView, setActiveView] = useState('discover-projects');
+
   const [projects, setProjects] = useState(initialProjects);
   const [selectedProject, setSelectedProject] = useState(initialProjects[0]);
   const [hackathons, setHackathons] = useState(initialHackathons);
@@ -42,6 +48,24 @@ export default function App() {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Auth Handlers
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    if (user.role === 'admin') {
+      setActiveView('admin-dashboard');
+      showToast(`Welcome to BuildCrew Admin Console, ${user.name}!`);
+    } else {
+      setActiveView('discover-projects');
+      showToast(`Welcome back to campus circuit, ${user.name}!`);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setActiveView('discover-projects');
+    showToast('Signed out of BuildCrew session.');
   };
 
   const handleAddHackathon = (newHack) => {
@@ -90,6 +114,29 @@ export default function App() {
     showToast(`Invitation dispatched to ${builderName}!`);
   };
 
+  // If unauthenticated: render complete Auth flow
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-background font-body-md text-on-surface antialiased">
+        <Auth onLoginSuccess={handleLoginSuccess} />
+
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 bg-primary text-on-primary px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 font-body-sm text-body-sm animate-modal">
+            <span className="material-symbols-outlined text-secondary text-lg">check_circle</span>
+            <span>{toastMessage}</span>
+            <button
+              type="button"
+              onClick={() => setToastMessage(null)}
+              className="ml-2 text-on-surface-variant hover:text-on-primary cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-on-surface flex flex-col font-body-md antialiased">
       {/* Fixed Navigation Sidebar */}
@@ -97,6 +144,8 @@ export default function App() {
         activeView={activeView}
         setActiveView={setActiveView}
         onOpenPostProject={() => setIsPostProjectOpen(true)}
+        currentUser={currentUser}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area (Offset by Sidebar: pl-72) */}
@@ -113,10 +162,28 @@ export default function App() {
           }}
           notificationCount={applications.length}
           onNavigateProfile={() => setActiveView('profile')}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onOpenAdminDashboard={() => setActiveView('admin-dashboard')}
         />
 
         {/* Dynamic View Router */}
         <main className="w-full pt-16 bg-surface min-h-screen px-space-lg py-space-lg flex-1">
+          {/* Admin Hackathon Management (Protected for role='admin', AccessDenied fallback for students) */}
+          {activeView === 'admin-dashboard' && (
+            currentUser?.role === 'admin' ? (
+              <AdminDashboard
+                currentUser={currentUser}
+                hackathons={hackathons}
+                onUpdateHackathons={setHackathons}
+                showToast={showToast}
+                onNavigate={setActiveView}
+              />
+            ) : (
+              <AccessDenied onBack={() => setActiveView('discover-projects')} />
+            )
+          )}
+
           {activeView === 'discover-projects' && (
             <DiscoverProjects
               projects={projects}
@@ -137,7 +204,7 @@ export default function App() {
 
           {activeView === 'hackathons' && (
             <Hackathons
-              hackathons={hackathons}
+              hackathons={hackathons.filter(h => h.isPublished !== false)}
               squadWins={squadWins}
               projects={projects}
               builders={builders}

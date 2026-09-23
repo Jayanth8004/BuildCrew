@@ -1,6 +1,12 @@
-import React from 'react';
+export default function Sidebar({ 
+  activeView, 
+  setActiveView, 
+  onOpenPostProject, 
+  currentUser, 
+  onLogout 
+}) {
+  const isAdmin = currentUser?.role === 'admin';
 
-export default function Sidebar({ activeView, setActiveView, onOpenPostProject }) {
   const platformNav = [
     { id: 'discover-projects', label: 'Discover Projects', icon: 'explore' },
     { id: 'hackathons', label: 'Hackathons', icon: 'terminal' },
@@ -28,7 +34,7 @@ export default function Sidebar({ activeView, setActiveView, onOpenPostProject }
       <div className="flex flex-col">
         {/* Brand / Logo */}
         <div 
-          onClick={() => handleNavClick('discover-projects')}
+          onClick={() => handleNavClick(isAdmin ? 'admin-dashboard' : 'discover-projects')}
           className="h-16 px-space-lg flex items-center gap-space-sm cursor-pointer hover:opacity-90 transition-opacity"
         >
           <img 
@@ -46,7 +52,7 @@ export default function Sidebar({ activeView, setActiveView, onOpenPostProject }
           </div>
         </div>
 
-        {/* Post Project Action Button */}
+        {/* Post Project Action Button (Available to students and admins) */}
         <div className="px-space-md py-space-sm">
           <button 
             type="button"
@@ -60,6 +66,29 @@ export default function Sidebar({ activeView, setActiveView, onOpenPostProject }
 
         {/* Navigation Sections */}
         <nav className="px-space-sm mt-space-xs space-y-1">
+          {/* Admin Management Section (Visible ONLY to Founders / Admins) */}
+          {isAdmin && (
+            <div className="mb-2">
+              <div className="px-space-md pt-space-xs pb-1 font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm">admin_panel_settings</span>
+                <span>ADMIN</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleNavClick('admin-dashboard')}
+                className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
+                  activeView === 'admin-dashboard'
+                    ? 'bg-secondary text-on-secondary font-semibold shadow-xs'
+                    : 'text-secondary hover:bg-secondary-fixed/40 hover:text-on-surface font-semibold'
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">tune</span>
+                <span>Manage Hackathons</span>
+              </button>
+            </div>
+          )}
+
+          {/* Student Platform Navigation */}
           <div className="px-space-md pt-space-xs pb-1 font-label-sm text-label-sm uppercase tracking-wider text-outline">
             Platform
           </div>
@@ -133,22 +162,38 @@ export default function Sidebar({ activeView, setActiveView, onOpenPostProject }
         <div className="pt-space-xs mt-space-xs">
           <div 
             onClick={() => handleNavClick('profile')}
-            className="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer"
+            className="flex items-center gap-space-sm px-space-md py-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer group"
           >
             <img 
               alt="Profile" 
               className="w-9 h-9 rounded-full object-cover shadow-[0_1px_3px_rgba(15,23,42,0.08)] shrink-0" 
-              src="https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG"
+              src={currentUser?.avatar || "https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG"}
             />
             <div className="flex flex-col min-w-0 flex-1">
               <span className="font-title-sm text-title-sm font-semibold text-on-surface truncate leading-tight">
-                Jayanth V.
+                {currentUser?.name || 'Jayanth V.'}
               </span>
               <span className="font-body-sm text-body-sm text-on-surface-variant truncate leading-tight">
-                Stanford CS '26
+                {isAdmin ? (
+                  <span className="text-secondary font-bold text-[11px]">Founder &amp; Admin</span>
+                ) : (
+                  currentUser?.university || "Stanford CS '26"
+                )}
               </span>
             </div>
-            <span className="material-symbols-outlined text-on-surface-variant text-base">unfold_more</span>
+            {onLogout && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLogout();
+                }}
+                className="text-on-surface-variant hover:text-red-600 p-1 transition-colors cursor-pointer"
+                title="Sign Out"
+              >
+                <span className="material-symbols-outlined text-base">logout</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
