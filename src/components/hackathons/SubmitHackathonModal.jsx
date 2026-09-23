@@ -74,7 +74,7 @@ export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackatho
       trackLabels: formData.tracks.map(t => trackOptions.find(opt => opt.id === t)?.label || t),
       description: formData.description || 'Collegiate hackathon organized by student community partners.',
       bounties: [
-        { track: 'Grand Prize', prize: formData.prizePool || '$10,000', sponsor: formData.organizer || 'Organizing Committee' }
+        { track: 'Grand Prize', prize: formData.prizePool ? formData.prizePool.replace(/\$/g, '₹') : '₹10,000', sponsor: formData.organizer || 'Organizing Committee' }
       ],
       schedule: [
         { phase: 'Admin Sanction Review', date: 'In Progress', status: 'current' },
@@ -189,11 +189,11 @@ export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackatho
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-bold uppercase text-outline block mb-1">
-                Prize Pool
+                Prize Pool (₹ / IND Rs)
               </label>
               <input
                 type="text"
-                placeholder="e.g. $25,000 in Grants"
+                placeholder="e.g. ₹25,000 in Grants"
                 value={formData.prizePool}
                 onChange={(e) => setFormData({ ...formData, prizePool: e.target.value })}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:border-secondary outline-none text-on-surface text-sm transition-all"

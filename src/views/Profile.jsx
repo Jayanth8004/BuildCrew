@@ -52,7 +52,7 @@ export default function Profile() {
               <span>•</span>
               <span>4 Hackathons Completed</span>
               <span>•</span>
-              <span>$35k Prizes Contributed</span>
+              <span>₹35,000 Prizes Contributed</span>
             </div>
           </div>
         </div>

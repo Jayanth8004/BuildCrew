@@ -102,7 +102,7 @@ export default function Header({
                 <div className="flex gap-2.5 items-start">
                   <span className="w-2 h-2 rounded-full bg-secondary mt-1.5 shrink-0"></span>
                   <div>
-                    <span className="font-semibold text-on-surface">TreeHacks '26</span> track announced: Autonomous Agents with $15k bounty.
+                    <span className="font-semibold text-on-surface">TreeHacks '26</span> track announced: Autonomous Agents with ₹15,000 bounty.
                     <span className="block text-outline text-[11px] mt-0.5">10m ago</span>
                   </div>
                 </div>

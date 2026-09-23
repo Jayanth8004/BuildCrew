@@ -100,7 +100,7 @@ export default function HackathonCard({
           </div>
           <div>
             <span className="text-[10px] uppercase font-bold text-outline block">Prize Pool</span>
-            <span className="font-extrabold text-amber-900">{hackathon.prizePool}</span>
+            <span className="font-extrabold text-amber-900">{hackathon.prizePool ? String(hackathon.prizePool).replace(/\$/g, '₹') : ''}</span>
           </div>
           <div>
             <span className="text-[10px] uppercase font-bold text-outline block">Team Size</span>
@@ -244,7 +244,7 @@ export default function HackathonCard({
             </span>
             <div className="min-w-0">
               <span className="text-[10px] uppercase font-bold text-outline block leading-none">Entry Fee</span>
-              <span className="font-bold text-xs text-on-surface truncate block mt-0.5">{hackathon.registrationFee || 'Free ($0)'}</span>
+              <span className="font-bold text-xs text-on-surface truncate block mt-0.5">{hackathon.registrationFee ? String(hackathon.registrationFee).replace(/\$0/g, '₹0').replace(/\$/g, '₹') : 'Free (₹0)'}</span>
             </div>
           </div>
 
@@ -255,7 +255,7 @@ export default function HackathonCard({
             </span>
             <div className="flex items-center justify-between w-full">
               <span className="text-[10px] uppercase font-bold text-amber-800/80 leading-none">Prize Pool:</span>
-              <span className="font-black text-xs text-amber-900">{hackathon.prizePool}</span>
+              <span className="font-black text-xs text-amber-900">{hackathon.prizePool ? String(hackathon.prizePool).replace(/\$/g, '₹') : ''}</span>
             </div>
           </div>
         </div>

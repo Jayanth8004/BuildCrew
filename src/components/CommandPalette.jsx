@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function CommandPalette({ 
   isOpen, 
@@ -138,7 +138,7 @@ export default function CommandPalette({
                       </div>
                     </div>
                     <span className="font-title-sm text-title-sm text-secondary font-bold shrink-0">
-                      {h.prizePool}
+                      {h.prizePool ? String(h.prizePool).replace(/\$/g, '₹') : ''}
                     </span>
                   </div>
                 ))}

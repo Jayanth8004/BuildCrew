@@ -378,7 +378,7 @@ export const initialHackathons = [
     endDate: 'Oct 26, 2026 · 4:00 PM ET',
     location: 'MIT Stata Center, Cambridge, MA',
     mode: 'hybrid',
-    prizePool: '$45,000 Grants',
+    prizePool: '₹45,000 Grants',
     squadLimits: '2 to 4 Builders',
     freeEntry: true,
     registrationFee: '100% Free (Host & Sponsor Funded)',
@@ -414,10 +414,10 @@ export const initialHackathons = [
       'Academic Integrity & Code of Conduct: Mutual respect, zero tolerance for harassment or plagiarism, and adherence to collegiate circuit guidelines are strictly enforced.'
     ],
     bounties: [
-      { track: 'Autonomic Agents & LLM Swarms', prize: '$15,000', sponsor: 'OpenAI Foundation' },
-      { track: 'Verifiable Hardware Security', prize: '$12,000', sponsor: 'Intel Labs' },
-      { track: 'Decentralized Data Mesh', prize: '$10,000', sponsor: 'Protocol Labs' },
-      { track: 'Edge Healthcare Diagnostics', prize: '$8,000', sponsor: 'Broad Institute' }
+      { track: 'Autonomic Agents & LLM Swarms', prize: '₹15,000', sponsor: 'OpenAI Foundation' },
+      { track: 'Verifiable Hardware Security', prize: '₹12,000', sponsor: 'Intel Labs' },
+      { track: 'Decentralized Data Mesh', prize: '₹10,000', sponsor: 'Protocol Labs' },
+      { track: 'Edge Healthcare Diagnostics', prize: '₹8,000', sponsor: 'Broad Institute' }
     ],
     schedule: [
       { phase: 'Team Applications Close', date: 'Oct 14, 11:59 PM PT', status: 'upcoming' },
@@ -442,7 +442,7 @@ export const initialHackathons = [
     endDate: 'Nov 16, 2026 · 2:00 PM PT',
     location: 'Stanford University, Stanford, CA',
     mode: 'hybrid',
-    prizePool: '$30,000+ Prizes',
+    prizePool: '₹30,000+ Prizes',
     squadLimits: '3 to 4 Builders',
     freeEntry: true,
     registrationFee: '100% Free',
@@ -477,10 +477,10 @@ export const initialHackathons = [
       'Inclusive Community: Stanford code of conduct applies in-person and in the Discord workspaces.'
     ],
     bounties: [
-      { track: 'Grand Prize Winner', prize: '$10,000', sponsor: 'TreeHacks Fund' },
-      { track: 'Best Climate & Sustainability System', prize: '$8,000', sponsor: 'Doerr School' },
-      { track: 'Biomedical Innovation Bounty', prize: '$7,000', sponsor: 'Stanford Bio-X' },
-      { track: 'Frontier AI Agent Architect', prize: '$5,000', sponsor: 'Anthropic' }
+      { track: 'Grand Prize Winner', prize: '₹10,000', sponsor: 'TreeHacks Fund' },
+      { track: 'Best Climate & Sustainability System', prize: '₹8,000', sponsor: 'Doerr School' },
+      { track: 'Biomedical Innovation Bounty', prize: '₹7,000', sponsor: 'Stanford Bio-X' },
+      { track: 'Frontier AI Agent Architect', prize: '₹5,000', sponsor: 'Anthropic' }
     ],
     schedule: [
       { phase: 'Priority Admissions Deadline', date: 'Oct 28, 2026', status: 'upcoming' },
@@ -509,7 +509,7 @@ export const initialHackathons = [
     endDate: 'Dec 07, 2026 · 2:00 PM PT',
     location: 'Metreon, San Francisco, CA',
     mode: 'in-person',
-    prizePool: '$50,000+ Capital Pool',
+    prizePool: '₹50,000+ Capital Pool',
     squadLimits: '2 to 4 Builders',
     freeEntry: true,
     registrationFee: '100% Free (Venue & Meals Provided)',
@@ -544,9 +544,9 @@ export const initialHackathons = [
       'Venue Guidelines: In-person check-in requires photo ID and signed student waiver.'
     ],
     bounties: [
-      { track: 'Grand Prize Venture Investment', prize: '$25,000 Check', sponsor: 'Berkeley SkyDeck' },
-      { track: 'Autonomous Agent Benchmark Prize', prize: '$15,000', sponsor: 'Scale AI' },
-      { track: 'Decentralized Compute Award', prize: '$10,000', sponsor: 'Solana Ventures' }
+      { track: 'Grand Prize Venture Investment', prize: '₹25,000 Check', sponsor: 'Berkeley SkyDeck' },
+      { track: 'Autonomous Agent Benchmark Prize', prize: '₹15,000', sponsor: 'Scale AI' },
+      { track: 'Decentralized Compute Award', prize: '₹10,000', sponsor: 'Solana Ventures' }
     ],
     schedule: [
       { phase: 'Applications Close (Max Capacity)', date: 'Nov 18, 2026', status: 'upcoming' },
@@ -574,7 +574,7 @@ export const initialHackathons = [
     endDate: 'Jan 18, 2027 · 3:00 PM ET',
     location: 'Engineering Quad, Philadelphia, PA',
     mode: 'in-person',
-    prizePool: '$40,000+ Hardware & Grants',
+    prizePool: '₹40,000+ Hardware & Grants',
     squadLimits: '1 to 4 Builders',
     freeEntry: true,
     registrationFee: '100% Free (Hardware Kits Provided)',
@@ -606,12 +606,12 @@ export const initialHackathons = [
       '100% IP Ownership: Squads retain all proprietary ownership and commercialization rights.',
       'Hardware Safety: All custom electronic rigs must pass initial mentor inspection prior to AC power connection.',
       'Submission: Working demo video and public repository required.',
-      'Code of Conduct: Collegiate circuit community code strictly in effect.'
+      'Code of Conduct: Collegiate circuit community code strictly in effect.',
     ],
     bounties: [
-      { track: 'Hardware Lab Grand Prize', prize: '$12,000', sponsor: 'Penn Engineering' },
-      { track: 'Next-Gen Payment Infrastructure', prize: '$10,000', sponsor: 'Stripe' },
-      { track: 'Clinical Care Diagnostics', prize: '$8,000', sponsor: 'Penn Medicine' }
+      { track: 'Hardware Lab Grand Prize', prize: '₹12,000', sponsor: 'Penn Engineering' },
+      { track: 'Next-Gen Payment Infrastructure', prize: '₹10,000', sponsor: 'Stripe' },
+      { track: 'Clinical Care Diagnostics', prize: '₹8,000', sponsor: 'Penn Medicine' }
     ],
     schedule: [
       { phase: 'Applications Open', date: 'Dec 01, 2026', status: 'upcoming' },
@@ -638,7 +638,7 @@ export const initialHackathons = [
     endDate: 'Nov 22, 2026 · 3:00 PM PT',
     location: 'Palace of Fine Arts, San Francisco, CA',
     mode: 'in-person',
-    prizePool: '$125,000 Bounties',
+    prizePool: '₹125,000 Bounties',
     squadLimits: '1 to 5 Builders',
     freeEntry: true,
     registrationFee: '100% Free (Staking Stake Returned at Door)',
@@ -673,9 +673,9 @@ export const initialHackathons = [
       'Security Standards: Malicious code or testnet exploits will result in immediate disqualification and circuit banning.'
     ],
     bounties: [
-      { track: 'Best Autonomous AI On-Chain Agent', prize: '$20,000', sponsor: 'Base & Coinbase' },
-      { track: 'Privacy & ZK Circuits', prize: '$15,000', sponsor: 'Aztec Network' },
-      { track: 'Decentralized Finance Innovations', prize: '$15,000', sponsor: 'Uniswap Labs' }
+      { track: 'Best Autonomous AI On-Chain Agent', prize: '₹20,000', sponsor: 'Base & Coinbase' },
+      { track: 'Privacy & ZK Circuits', prize: '₹15,000', sponsor: 'Aztec Network' },
+      { track: 'Decentralized Finance Innovations', prize: '₹15,000', sponsor: 'Uniswap Labs' }
     ],
     schedule: [
       { phase: 'Registration Deadline', date: 'Nov 10, 2026', status: 'upcoming' },
@@ -702,7 +702,7 @@ export const initialHackathons = [
     endDate: 'Sep 21, 2026 · 2:00 PM ET',
     location: 'MIT Campus, Cambridge, MA',
     mode: 'in-person',
-    prizePool: '$35,000 Awarded',
+    prizePool: '₹35,000 Awarded',
     squadLimits: '2 to 4 Builders',
     freeEntry: true,
     registrationFee: '100% Free',
@@ -719,7 +719,7 @@ export const initialHackathons = [
     logo: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBA_EZF8FakmJ9gNE8Qb-O6hhCLOQvPHlf5p5jpmVZuF3QjfcOhr3pB4eN0g3KQev_luZCzYShKt221pvgDKZsB0E5LgqAoq8ncczUwUGGWJr2ZuK8BpiejOTLZSdgrSZGIIUJllj3mXWh7zpeW5AGOa5TRJe4aoZOerdz_y0LM-UWOf--D_QHyOBjLuTtijx9aV3mU2Yjd0kRGKjhPQ-iLBJ62_yn63lT7wAWPLt7P4ceD1tP5UFDz',
     coverImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDX_mOFXLVvuCbf1oQQGndJsT954Hu501_6TXKcXha4PJEZCHX7aAeew7Ba3klJT6TZLJWHaXBRIlrGvwl4nkJEOkxRMe4ZACjZMBItltyN0Moo2jI2S-wQGguh_Fz7mz8SqaoPR3vK8o3LyiRR6Lp9KnZRL7HZ11AzFuw67X1KJpSrmBPsQK8M6r2F643jQA5Mm3d6T9-W74OdrVDI5a_eZ9l8DmNPlqfwk7IHGUTlbGrP90R1nFJU',
     podiumBadge: '3 BuildCrew Podium Teams',
-    archiveHighlight: 'First place won by BuildCrew squad "NeuroMesh" ($15,000 grant)',
+    archiveHighlight: 'First place won by BuildCrew squad "NeuroMesh" (₹15,000 grant)',
     description: 'MIT’s premier collegiate hackathon. Over 1,000 hackers convened to prototype software and hardware solutions over 24 continuous hacking hours.',
     eligibility: 'Event concluded. Archived for collegiate podium rankings and verified squad portfolio credentials.',
     teamRequirements: 'Squads had 2 to 4 members. Official winners registered in circuit record books.',
@@ -736,9 +736,9 @@ export const initialHackathons = [
       'Grants disbursed via escrow to winning student teams.'
     ],
     bounties: [
-      { track: 'Grand Prize 1st Place', prize: '$15,000', sponsor: 'BuildCrew & MIT Alliance' },
-      { track: 'Best AI Inference Engine', prize: '$10,000', sponsor: 'NVIDIA' },
-      { track: 'Green Energy Optimizer', prize: '$10,000', sponsor: 'Breakthrough Energy' }
+      { track: 'Grand Prize 1st Place', prize: '₹15,000', sponsor: 'BuildCrew & MIT Alliance' },
+      { track: 'Best AI Inference Engine', prize: '₹10,000', sponsor: 'NVIDIA' },
+      { track: 'Green Energy Optimizer', prize: '₹10,000', sponsor: 'Breakthrough Energy' }
     ],
     schedule: [
       { phase: 'Event Concluded & Judging Complete', date: 'Sep 21, 2026', status: 'completed' }
@@ -751,19 +751,19 @@ export const initialSquadWins = [
     rank: '1st',
     team: 'NeuroMesh',
     event: 'HackMIT 2026 · Frontier AI Track',
-    amount: '$15,000'
+    amount: '₹15,000'
   },
   {
     rank: '1st',
     team: 'ZeroGuard',
     event: 'CalHacks 11 · Security Grand Prize',
-    amount: '$20,000'
+    amount: '₹20,000'
   },
   {
     rank: '2nd',
     team: 'BioPulse AI',
     event: 'TreeHacks 2025 · Health Track',
-    amount: '$10,000'
+    amount: '₹10,000'
   }
 ];
 
@@ -975,7 +975,7 @@ export const initialHackathonSquads = [
     title: 'ZeroMesh Verifier',
     track: 'Verifiable Hardware Security',
     tagline: 'Cryptographic proof layer for edge sensor telemetry',
-    description: 'Designing zero-knowledge verification proofs for embedded IoT devices. Aiming for the $12,000 Intel Labs bounty at HackNova.',
+    description: 'Designing zero-knowledge verification proofs for embedded IoT devices. Aiming for the ₹12,000 Intel Labs bounty at HackNova.',
     techStack: ['Circom', 'Rust', 'ESP32', 'Next.js'],
     filledCount: 3,
     totalCapacity: 4,
@@ -1022,7 +1022,7 @@ export const initialHackathonSquads = [
     title: 'BioPulse On-Device',
     track: 'Health & Bio Track',
     tagline: 'Edge acoustic biomarker detector for cardiovascular murmurs',
-    description: 'Competing for the $7,000 Stanford Bio-X track at TreeHacks. Leveraging lightweight spectrogram CNNs running locally on mobile devices.',
+    description: 'Competing for the ₹7,000 Stanford Bio-X track at TreeHacks. Leveraging lightweight spectrogram CNNs running locally on mobile devices.',
     techStack: ['Flutter', 'TensorFlow Lite', 'FastAPI', 'Python'],
     filledCount: 2,
     totalCapacity: 4,

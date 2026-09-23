@@ -34,7 +34,24 @@ export default function App() {
   const [hackathons, setHackathons] = useState(() => {
     try {
       const saved = localStorage.getItem('buildcrew_hackathons');
-      return saved ? JSON.parse(saved) : initialHackathons;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Normalize any legacy '$' symbol to Indian Rupee '₹'
+          return parsed.map(h => ({
+            ...h,
+            prizePool: h.prizePool ? String(h.prizePool).replace(/\$/g, '₹') : h.prizePool,
+            registrationFee: h.registrationFee ? String(h.registrationFee).replace(/\$0/g, '₹0').replace(/\$/g, '₹') : h.registrationFee,
+            bounties: Array.isArray(h.bounties)
+              ? h.bounties.map(b => ({
+                  ...b,
+                  prize: b.prize ? String(b.prize).replace(/\$/g, '₹') : b.prize
+                }))
+              : h.bounties
+          }));
+        }
+      }
+      return initialHackathons;
     } catch {
       return initialHackathons;
     }

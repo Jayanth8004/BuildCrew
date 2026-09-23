@@ -56,11 +56,11 @@ export default function HackathonHero({ flagship, onFindSquad, onOpenDetails }) 
             </div>
             <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 backdrop-blur-md">
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 block">Registration Fee</span>
-              <span className="text-xs font-bold text-emerald-200 block mt-0.5 truncate">{flagship.registrationFee || '100% Free'}</span>
+              <span className="text-xs font-bold text-emerald-200 block mt-0.5 truncate">{flagship.registrationFee ? String(flagship.registrationFee).replace(/\$0/g, '₹0').replace(/\$/g, '₹') : '100% Free'}</span>
             </div>
             <div className="px-3.5 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 backdrop-blur-md">
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Prize</span>
-              <span className="text-xs font-black text-amber-300 block mt-0.5 truncate">{flagship.prizePool}</span>
+              <span className="text-xs font-black text-amber-300 block mt-0.5 truncate">{flagship.prizePool ? String(flagship.prizePool).replace(/\$/g, '₹') : ''}</span>
             </div>
           </div>
 

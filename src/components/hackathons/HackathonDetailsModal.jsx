@@ -57,7 +57,7 @@ export default function HackathonDetailsModal({
 
             <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-extrabold text-xs border border-amber-400/30 flex items-center gap-1">
               <span className="material-symbols-outlined text-xs">military_tech</span>
-              <span>{hackathon.prizePool}</span>
+              <span>{hackathon.prizePool ? String(hackathon.prizePool).replace(/\$/g, '₹') : ''}</span>
             </span>
           </div>
 
@@ -107,7 +107,7 @@ export default function HackathonDetailsModal({
                 </span>
                 <span className="flex items-center gap-1 text-emerald-300 font-semibold">
                   <span className="material-symbols-outlined text-sm text-emerald-400">payments</span>
-                  <span>{hackathon.registrationFee || '100% Free'}</span>
+                  <span>{hackathon.registrationFee ? String(hackathon.registrationFee).replace(/\$0/g, '₹0').replace(/\$/g, '₹') : '100% Free'}</span>
                 </span>
                 <span className="flex items-center gap-1 text-amber-300 font-semibold">
                   <span className="material-symbols-outlined text-sm text-amber-400">hourglass_top</span>
@@ -174,7 +174,7 @@ export default function HackathonDetailsModal({
                 <div className="p-3.5 rounded-2xl bg-surface-container-low border border-surface-container-high/60">
                   <span className="text-[10px] font-extrabold uppercase text-outline block">Registration Fee</span>
                   <span className="font-bold text-xs text-emerald-800 mt-1 block">
-                    {hackathon.registrationFee || '100% Free'}
+                    {hackathon.registrationFee ? String(hackathon.registrationFee).replace(/\$0/g, '₹0').replace(/\$/g, '₹') : '100% Free'}
                   </span>
                 </div>
 
@@ -209,7 +209,7 @@ export default function HackathonDetailsModal({
                     Sponsored Competition Tracks &amp; Bounties
                   </h4>
                   <span className="text-xs font-extrabold text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-full">
-                    Total Pool: {hackathon.prizePool}
+                    Total Pool: {hackathon.prizePool ? String(hackathon.prizePool).replace(/\$/g, '₹') : ''}
                   </span>
                 </div>
 
@@ -225,7 +225,7 @@ export default function HackathonDetailsModal({
                             {bounty.track}
                           </span>
                           <span className="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 font-extrabold text-xs shrink-0">
-                            {bounty.prize}
+                            {bounty.prize ? String(bounty.prize).replace(/\$/g, '₹') : ''}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-on-surface-variant pt-1 border-t border-surface-container-high/60">
