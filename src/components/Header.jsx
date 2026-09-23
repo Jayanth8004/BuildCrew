@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function Header({ 
-  onOpenCommandPalette, 
+  activeView,
   searchQuery, 
   setSearchQuery,
   onSearchFocus,
@@ -63,16 +63,23 @@ export default function Header({
 
       {/* Right: Actions & Profile */}
       <div className="flex items-center gap-space-sm relative">
-        {/* Admin Quick Switch (if current user is admin previewing student view) */}
+        {/* Admin Console Badge or Quick Switch Button */}
         {currentUser?.role === 'admin' && (
-          <button
-            type="button"
-            onClick={onOpenAdminDashboard}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary text-on-secondary font-bold text-xs shadow-xs hover:bg-secondary/90 transition-all cursor-pointer mr-1"
-          >
-            <span className="material-symbols-outlined text-base">admin_panel_settings</span>
-            <span>Manage Hackathons</span>
-          </button>
+          activeView === 'admin-dashboard' ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary/10 text-secondary border border-secondary/20 font-bold text-xs mr-1 select-none">
+              <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+              <span>Admin Console</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenAdminDashboard}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary text-on-secondary font-bold text-xs shadow-xs hover:bg-secondary/90 transition-all cursor-pointer mr-1"
+            >
+              <span className="material-symbols-outlined text-base">admin_panel_settings</span>
+              <span>Manage Hackathons</span>
+            </button>
+          )
         )}
 
         {/* Activity Feed Button */}

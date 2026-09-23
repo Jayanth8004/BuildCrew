@@ -52,21 +52,23 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* Post Project Action Button (Available to students and admins) */}
-        <div className="px-space-md py-space-sm">
-          <button 
-            type="button"
-            onClick={onOpenPostProject}
-            className="w-full flex items-center justify-center gap-space-xs py-2.5 px-space-md rounded-xl bg-primary text-on-primary font-title-sm text-title-sm shadow-[0_1px_3px_rgba(15,23,42,0.08)] hover:bg-surface-tint active:scale-[0.98] transition-all cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-lg leading-none">add_circle</span>
-            <span>Post Project</span>
-          </button>
-        </div>
+        {/* Post Project Action Button (Available to students only) */}
+        {!isAdmin && (
+          <div className="px-space-md py-space-sm">
+            <button 
+              type="button"
+              onClick={onOpenPostProject}
+              className="w-full flex items-center justify-center gap-space-xs py-2.5 px-space-md rounded-xl bg-primary text-on-primary font-title-sm text-title-sm shadow-[0_1px_3px_rgba(15,23,42,0.08)] hover:bg-surface-tint active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-lg leading-none">add_circle</span>
+              <span>Post Project</span>
+            </button>
+          </div>
+        )}
 
         {/* Navigation Sections */}
         <nav className="px-space-sm mt-space-xs space-y-1">
-          {/* Admin Management Section (Visible ONLY to Founders / Admins) */}
+          {/* Admin Management Section (The only section visible in the Admin Panel) */}
           {isAdmin && (
             <div className="mb-2">
               <div className="px-space-md pt-space-xs pb-1 font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold flex items-center gap-1">
@@ -76,7 +78,7 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={() => handleNavClick('admin-dashboard')}
-                className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
+                className={`w-full flex items-center gap-space-sm px-space-md py-2.5 rounded-xl transition-all font-title-sm text-title-sm text-left ${
                   activeView === 'admin-dashboard'
                     ? 'bg-secondary text-on-secondary font-semibold shadow-xs'
                     : 'text-secondary hover:bg-secondary-fixed/40 hover:text-on-surface font-semibold'
@@ -88,50 +90,54 @@ export default function Sidebar({
             </div>
           )}
 
-          {/* Student Platform Navigation */}
-          <div className="px-space-md pt-space-xs pb-1 font-label-sm text-label-sm uppercase tracking-wider text-outline">
-            Platform
-          </div>
-          {platformNav.map((item) => {
-            const isActive = activeView === item.id || (item.id === 'discover-projects' && activeView === 'project-details');
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleNavClick(item.id)}
-                className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
-                  isActive
-                    ? 'bg-surface-container text-on-surface font-semibold shadow-sm'
-                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+          {/* Student Platform Navigation & My Work (Hidden in Admin Panel) */}
+          {!isAdmin && (
+            <>
+              <div className="px-space-md pt-space-xs pb-1 font-label-sm text-label-sm uppercase tracking-wider text-outline">
+                Platform
+              </div>
+              {platformNav.map((item) => {
+                const isActive = activeView === item.id || (item.id === 'discover-projects' && activeView === 'project-details');
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleNavClick(item.id)}
+                    className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
+                      isActive
+                        ? 'bg-surface-container text-on-surface font-semibold shadow-sm'
+                        : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
 
-          <div className="px-space-md pt-space-md pb-1 font-label-sm text-label-sm uppercase tracking-wider text-outline">
-            My Work
-          </div>
-          {myWorkNav.map((item) => {
-            const isActive = activeView === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleNavClick(item.id)}
-                className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
-                  isActive
-                    ? 'bg-surface-container text-on-surface font-semibold shadow-sm'
-                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-xl">{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+              <div className="px-space-md pt-space-md pb-1 font-label-sm text-label-sm uppercase tracking-wider text-outline">
+                My Work
+              </div>
+              {myWorkNav.map((item) => {
+                const isActive = activeView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleNavClick(item.id)}
+                    className={`w-full flex items-center gap-space-sm px-space-md py-2 rounded-xl transition-all font-title-sm text-title-sm text-left ${
+                      isActive
+                        ? 'bg-surface-container text-on-surface font-semibold shadow-sm'
+                        : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-xl">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </>
+          )}
         </nav>
       </div>
 

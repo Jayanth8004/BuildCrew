@@ -9,7 +9,6 @@ import { initialHackathonSquads } from '../data/mockData';
 
 export default function Hackathons({ 
   hackathons, 
-  squadWins,
   projects = [],
   builders = [],
   onAddHackathon,
@@ -93,9 +92,18 @@ export default function Hackathons({
         if (statusTab === 'team-full' && h.status !== 'team-full') return false;
       }
 
-      // Mode filter
-      if (activeMode !== 'all' && h.mode !== activeMode) {
-        return false;
+      // Mode filter (supports Online/Virtual, Offline/In-person, and Hybrid)
+      if (activeMode !== 'all') {
+        const hMode = (h.mode || '').toLowerCase().trim();
+        const aMode = activeMode.toLowerCase().trim();
+        const isMatch =
+          hMode === aMode ||
+          ((aMode === 'virtual' || aMode === 'online') && (hMode === 'virtual' || hMode === 'online')) ||
+          ((aMode === 'in-person' || aMode === 'offline') && (hMode === 'in-person' || hMode === 'offline')) ||
+          (aMode === 'hybrid' && hMode === 'hybrid');
+        if (!isMatch) {
+          return false;
+        }
       }
 
       // Track filters
@@ -327,9 +335,9 @@ export default function Hackathons({
                 className="bg-surface-container-low px-2 py-1 rounded-lg text-xs font-bold text-on-surface outline-none cursor-pointer"
               >
                 <option value="all">All Formats</option>
-                <option value="in-person">In-Person</option>
+                <option value="online">Online</option>
+                <option value="in-person">Offline / In-Person</option>
                 <option value="hybrid">Hybrid</option>
-                <option value="virtual">Virtual</option>
               </select>
             </div>
 

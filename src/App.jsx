@@ -31,7 +31,14 @@ export default function App() {
 
   const [projects, setProjects] = useState(initialProjects);
   const [selectedProject, setSelectedProject] = useState(initialProjects[0]);
-  const [hackathons, setHackathons] = useState(initialHackathons);
+  const [hackathons, setHackathons] = useState(() => {
+    try {
+      const saved = localStorage.getItem('buildcrew_hackathons');
+      return saved ? JSON.parse(saved) : initialHackathons;
+    } catch {
+      return initialHackathons;
+    }
+  });
   const [squadWins] = useState(initialSquadWins);
   const [builders] = useState(initialBuilders);
   const [applications, setApplications] = useState(initialApplications);
@@ -48,6 +55,27 @@ export default function App() {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Hackathons persistence helper
+  const handleUpdateHackathons = (newHackathons) => {
+    const list = typeof newHackathons === 'function' ? newHackathons(hackathons) : newHackathons;
+    setHackathons(list);
+    try {
+      localStorage.setItem('buildcrew_hackathons', JSON.stringify(list));
+    } catch (e) {
+      console.warn('Failed to persist hackathons', e);
+    }
+  };
+
+  const handleResetHackathonsToDefault = () => {
+    setHackathons(initialHackathons);
+    try {
+      localStorage.removeItem('buildcrew_hackathons');
+    } catch (e) {
+      console.warn('Failed to clear hackathon cache', e);
+    }
+    showToast('Circuit Hackathons restored to original platform defaults.');
   };
 
   // Auth Handlers
@@ -69,7 +97,7 @@ export default function App() {
   };
 
   const handleAddHackathon = (newHack) => {
-    setHackathons(prev => [newHack, ...prev]);
+    handleUpdateHackathons(prev => [newHack, ...prev]);
     showToast(`Hackathon "${newHack.title}" submitted to circuit registry!`);
   };
 
@@ -152,6 +180,7 @@ export default function App() {
       <div className="pl-72 min-h-screen flex flex-col">
         {/* Sticky Top Header */}
         <Header
+          activeView={activeView}
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -175,7 +204,8 @@ export default function App() {
               <AdminDashboard
                 currentUser={currentUser}
                 hackathons={hackathons}
-                onUpdateHackathons={setHackathons}
+                onUpdateHackathons={handleUpdateHackathons}
+                onResetDefaults={handleResetHackathonsToDefault}
                 showToast={showToast}
                 onNavigate={setActiveView}
               />
