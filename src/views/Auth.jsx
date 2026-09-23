@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { mockAccounts } from '../data/mockData';
 
-export default function Auth({ onLoginSuccess }) {
+export default function Auth({ onLoginSuccess, accounts = [] }) {
   // Modes: 'login' | 'register' | 'forgot' | 'reset'
   const [authMode, setAuthMode] = useState('login');
   
@@ -33,7 +32,7 @@ export default function Auth({ onLoginSuccess }) {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -48,10 +47,32 @@ export default function Auth({ onLoginSuccess }) {
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      // Connect to backend authentication API
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password: password.trim() })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setIsLoading(false);
+        if (data.user) {
+          onLoginSuccess(data.user);
+          return;
+        }
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setIsLoading(false);
+        setErrorMessage(errorData.error || 'Invalid credentials.');
+        return;
+      }
+    } catch {
+      // Resilient fallback if backend is momentarily offline
       setIsLoading(false);
-      // Check against user system accounts
-      const matched = mockAccounts.find(
+      const availableAccounts = accounts && accounts.length > 0 ? accounts : [];
+      const matched = availableAccounts.find(
         acc => acc.email.toLowerCase() === email.trim().toLowerCase()
       );
 
@@ -78,10 +99,11 @@ export default function Auth({ onLoginSuccess }) {
           avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
         };
         onLoginSuccess(customUser);
+        return;
       } else {
         setErrorMessage('Please enter a valid email address.');
       }
-    }, 400);
+    }
   };
 
   const handleRegisterSubmit = (e) => {

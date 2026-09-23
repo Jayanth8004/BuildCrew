@@ -5,12 +5,12 @@ import HackathonDetailsModal from '../components/hackathons/HackathonDetailsModa
 import HackathonSquadUpModal from '../components/hackathons/HackathonSquadUpModal';
 import SubmitHackathonModal from '../components/hackathons/SubmitHackathonModal';
 import HackathonTeamDetailsModal from '../components/hackathons/HackathonTeamDetailsModal';
-import { initialHackathonSquads } from '../data/mockData';
 
 export default function Hackathons({ 
   hackathons, 
   projects = [],
   builders = [],
+  hackathonSquads = [],
   onAddHackathon,
   onApplySquad,
   onInviteBuilder,
@@ -499,7 +499,7 @@ export default function Hackathons({
         onClose={() => setSelectedHackathon(null)}
         onFindSquad={(h) => handleOpenSquadUp(h)}
         onOpenTeamDetails={(team) => setSelectedTeamDetails(team)}
-        hackathonSquads={initialHackathonSquads.filter(sq => sq.hackathonId === selectedHackathon?.id)}
+        hackathonSquads={(hackathonSquads || []).filter(sq => sq.hackathonId === selectedHackathon?.id)}
       />
 
       {/* Hackathon Team Details Modal */}

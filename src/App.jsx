@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import CommandPalette from './components/CommandPalette';
@@ -16,49 +16,22 @@ import Auth from './views/Auth';
 import AdminDashboard from './views/AdminDashboard';
 import AccessDenied from './views/AccessDenied';
 
-import {
-  initialProjects,
-  initialHackathons,
-  initialSquadWins,
-  initialBuilders,
-  initialApplications
-} from './data/mockData';
-
 export default function App() {
   // Authentication & Role Routing state
   const [currentUser, setCurrentUser] = useState(null);
   const [activeView, setActiveView] = useState('discover-projects');
 
-  const [projects, setProjects] = useState(initialProjects);
-  const [selectedProject, setSelectedProject] = useState(initialProjects[0]);
-  const [hackathons, setHackathons] = useState(() => {
-    try {
-      const saved = localStorage.getItem('buildcrew_hackathons');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          // Normalize any legacy '$' symbol to Indian Rupee '₹'
-          return parsed.map(h => ({
-            ...h,
-            prizePool: h.prizePool ? String(h.prizePool).replace(/\$/g, '₹') : h.prizePool,
-            registrationFee: h.registrationFee ? String(h.registrationFee).replace(/\$0/g, '₹0').replace(/\$/g, '₹') : h.registrationFee,
-            bounties: Array.isArray(h.bounties)
-              ? h.bounties.map(b => ({
-                  ...b,
-                  prize: b.prize ? String(b.prize).replace(/\$/g, '₹') : b.prize
-                }))
-              : h.bounties
-          }));
-        }
-      }
-      return initialHackathons;
-    } catch {
-      return initialHackathons;
-    }
-  });
-  const [squadWins] = useState(initialSquadWins);
-  const [builders] = useState(initialBuilders);
-  const [applications, setApplications] = useState(initialApplications);
+  // Backend Hydrated States (loaded from Express server via fetch)
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [hackathons, setHackathons] = useState([]);
+  const [defaultHackathons, setDefaultHackathons] = useState([]);
+  const [squadWins, setSquadWins] = useState([]);
+  const [builders, setBuilders] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [hackathonSquads, setHackathonSquads] = useState([]);
+  const [isBackendLoading, setIsBackendLoading] = useState(true);
 
   // Modals state
   const [quickApplyProject, setQuickApplyProject] = useState(null);
@@ -74,6 +47,79 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  // =========================================================================
+  // 🔌 CONNECTED BACKEND CODE: Fetch initial platform data via Express API
+  // =========================================================================
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPlatformData = async () => {
+      try {
+        setIsBackendLoading(true);
+        console.log('📡 [BuildCrew Frontend] Requesting bootstrap data from Express backend (http://localhost:5000/api/bootstrap)...');
+
+        // Fetch data from Express server
+        const res = await fetch('http://localhost:5000/api/bootstrap');
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: Failed to fetch from backend`);
+        }
+
+        const payload = await res.json();
+        const data = payload.data || {};
+
+        if (!isMounted) return;
+
+        // 1. Set Projects State
+        const loadedProjects = Array.isArray(data.projects) ? data.projects : [];
+        setProjects(loadedProjects);
+        if (loadedProjects.length > 0) {
+          setSelectedProject(loadedProjects[0]);
+        }
+
+        // 2. Set Hackathons State (preserving any custom saved hackathons)
+        const loadedHackathons = Array.isArray(data.hackathons) ? data.hackathons : [];
+        setDefaultHackathons(loadedHackathons);
+
+        try {
+          const saved = localStorage.getItem('buildcrew_hackathons');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setHackathons(parsed);
+            } else {
+              setHackathons(loadedHackathons);
+            }
+          } else {
+            setHackathons(loadedHackathons);
+          }
+        } catch {
+          setHackathons(loadedHackathons);
+        }
+
+        // 3. Set Squad Wins, Builders, Applications, Accounts, and Hackathon Squads
+        setSquadWins(Array.isArray(data.squadWins) ? data.squadWins : []);
+        setBuilders(Array.isArray(data.builders) ? data.builders : []);
+        setApplications(Array.isArray(data.applications) ? data.applications : []);
+        setAccounts(Array.isArray(data.accounts) ? data.accounts : []);
+        setHackathonSquads(Array.isArray(data.hackathonSquads) ? data.hackathonSquads : []);
+
+        console.log('✅ [BuildCrew Frontend] Data loaded successfully from Express backend server.');
+      } catch (err) {
+        console.warn('⚠️ [BuildCrew Frontend] Could not connect to Express backend at http://localhost:5000. Ensure "npm run server" is running.', err);
+      } finally {
+        if (isMounted) {
+          setIsBackendLoading(false);
+        }
+      }
+    };
+
+    fetchPlatformData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Hackathons persistence helper
   const handleUpdateHackathons = (newHackathons) => {
     const list = typeof newHackathons === 'function' ? newHackathons(hackathons) : newHackathons;
@@ -86,7 +132,7 @@ export default function App() {
   };
 
   const handleResetHackathonsToDefault = () => {
-    setHackathons(initialHackathons);
+    setHackathons(defaultHackathons);
     try {
       localStorage.removeItem('buildcrew_hackathons');
     } catch (e) {
@@ -116,6 +162,13 @@ export default function App() {
   const handleAddHackathon = (newHack) => {
     handleUpdateHackathons(prev => [newHack, ...prev]);
     showToast(`Hackathon "${newHack.title}" submitted to circuit registry!`);
+
+    // Synchronize new hackathon with backend API
+    fetch('http://localhost:5000/api/hackathons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newHack)
+    }).catch(err => console.warn('Could not sync hackathon to backend:', err));
   };
 
   // Nav actions
@@ -145,6 +198,13 @@ export default function App() {
     };
     setApplications(prev => [fullApp, ...prev]);
     showToast(`Application sent for ${newApp.role} in ${newApp.projectTitle}!`);
+
+    // Synchronize application with backend API
+    fetch('http://localhost:5000/api/applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fullApp)
+    }).catch(err => console.warn('Could not sync application to backend:', err));
   };
 
   const handleAddProject = (newProj) => {
@@ -153,6 +213,13 @@ export default function App() {
     setActiveView('project-details');
     showToast(`Project "${newProj.title}" launched successfully!`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Synchronize new project with backend API
+    fetch('http://localhost:5000/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProj)
+    }).catch(err => console.warn('Could not sync project to backend:', err));
   };
 
   const handleInviteBuilder = (builderName) => {
@@ -163,7 +230,19 @@ export default function App() {
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-background font-body-md text-on-surface antialiased">
-        <Auth onLoginSuccess={handleLoginSuccess} />
+        {isBackendLoading ? (
+          <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
+            <div className="w-12 h-12 rounded-2xl bg-secondary/20 flex items-center justify-center mb-4">
+              <span className="material-symbols-outlined text-secondary text-2xl animate-spin">sync</span>
+            </div>
+            <h2 className="font-bold text-lg text-on-surface">Connecting to BuildCrew Backend...</h2>
+            <p className="text-sm text-on-surface-variant mt-1">
+              Hydrating platform state from Express server (http://localhost:5000)
+            </p>
+          </div>
+        ) : (
+          <Auth onLoginSuccess={handleLoginSuccess} accounts={accounts} />
+        )}
 
         {toastMessage && (
           <div className="fixed bottom-6 right-6 z-50 bg-primary text-on-primary px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 font-body-sm text-body-sm animate-modal">
@@ -255,6 +334,7 @@ export default function App() {
               squadWins={squadWins}
               projects={projects}
               builders={builders}
+              hackathonSquads={hackathonSquads}
               onApplySquad={handleApplySuccess}
               onInviteBuilder={handleInviteBuilder}
               onCreateSquad={handleAddProject}
