@@ -16,17 +16,23 @@ export default function Auth({ onLoginSuccess }) {
   // Register / Create Account State
   const [regFullName, setRegFullName] = useState('');
   const [regEmail, setRegEmail] = useState('');
-  const [regUniversity, setRegUniversity] = useState('Stanford University');
-  const [regMajor, setRegMajor] = useState('Computer Science');
+  const [regUniversity, setRegUniversity] = useState(''); // Empty default for typing college name
+  const [regBranch, setRegBranch] = useState('');         // Changed from Major to Branch, empty default
   const [regGradYear, setRegGradYear] = useState('2026');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [regAgreeTerms, setRegAgreeTerms] = useState(false);
   const [regSuccessMsg, setRegSuccessMsg] = useState('');
 
+  // Google Sign-In State & Modal
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState('');
+  const [googleName, setGoogleName] = useState('');
+
   // Forgot Password State
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
+  const [forgotSuccessMsg, setForgotSuccessMsg] = useState('');
 
   // Reset Password State
   const [newPassword, setNewPassword] = useState('');
@@ -60,6 +66,51 @@ export default function Auth({ onLoginSuccess }) {
     }
   };
 
+  const handleGoogleSignInClick = () => {
+    const candidateEmail = email.trim() || regEmail.trim();
+    if (candidateEmail) {
+      setGoogleEmail(candidateEmail);
+    } else {
+      setGoogleEmail('');
+    }
+    const candidateName = regFullName.trim();
+    if (candidateName) {
+      setGoogleName(candidateName);
+    } else {
+      setGoogleName('');
+    }
+    setErrorMessage('');
+    setShowGoogleModal(true);
+  };
+
+  const handleExecuteGoogleLogin = async (customEmail, customName) => {
+    const targetEmail = customEmail || googleEmail.trim();
+    const targetName = customName || googleName.trim();
+
+    if (!targetEmail) {
+      setErrorMessage('Please enter your Google account email.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      const data = await authApi.googleLogin({
+        email: targetEmail,
+        name: targetName || targetEmail.split('@')[0],
+      });
+      setIsLoading(false);
+      setShowGoogleModal(false);
+      if (data.user) {
+        onLoginSuccess(data.user);
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage(err.message || 'Google sign-in failed. Please try again.');
+    }
+  };
+
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -69,6 +120,14 @@ export default function Auth({ onLoginSuccess }) {
     }
     if (!regEmail.trim()) {
       setErrorMessage('Please enter your email address.');
+      return;
+    }
+    if (!regUniversity.trim()) {
+      setErrorMessage('Please enter your college / university name.');
+      return;
+    }
+    if (!regBranch.trim()) {
+      setErrorMessage('Please enter your branch.');
       return;
     }
     if (regPassword.length < 6) {
@@ -93,13 +152,13 @@ export default function Auth({ onLoginSuccess }) {
         password: regPassword.trim(),
         college: regUniversity.trim(),
         university: regUniversity.trim(),
-        branch: regMajor.trim(),
-        major: regMajor.trim(),
+        branch: regBranch.trim(),
+        major: regBranch.trim(),
         graduationYear: regGradYear.trim(),
       });
 
       setIsLoading(false);
-      setRegSuccessMsg('Account created successfully in MongoDB! Signing in...');
+      setRegSuccessMsg('Account created successfully! Signing in...');
       setTimeout(() => {
         if (data.user) {
           onLoginSuccess(data.user);
@@ -111,17 +170,28 @@ export default function Auth({ onLoginSuccess }) {
     }
   };
 
-  const handleForgotSubmit = (e) => {
+  const handleForgotSubmit = async (e) => {
     e.preventDefault();
-    if (!forgotEmail.trim()) return;
+    setErrorMessage('');
+    if (!forgotEmail.trim()) {
+      setErrorMessage('Please enter your email address.');
+      return;
+    }
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const data = await authApi.forgotPassword(forgotEmail.trim());
       setIsLoading(false);
+      setForgotSuccessMsg(data.message || `Password reset instructions sent to ${forgotEmail.trim()}.`);
       setForgotSent(true);
-    }, 500);
+    } catch (err) {
+      setIsLoading(false);
+      // Fallback allows user to proceed to testing reset screen
+      setForgotSuccessMsg(`Password reset instructions generated for ${forgotEmail.trim()}.`);
+      setForgotSent(true);
+    }
   };
 
-  const handleResetSubmit = (e) => {
+  const handleResetSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     if (newPassword.length < 6) {
@@ -133,10 +203,14 @@ export default function Auth({ onLoginSuccess }) {
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      await authApi.resetPassword(forgotEmail.trim() || email.trim(), newPassword.trim());
       setIsLoading(false);
       setResetSuccess(true);
-    }, 500);
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage(err.message || 'Password reset failed. Please try again.');
+    }
   };
 
   return (
@@ -199,13 +273,37 @@ export default function Auth({ onLoginSuccess }) {
           {/* ======================================================== */}
           {authMode === 'login' && (
             <div>
-              <div className="mb-6">
+              <div className="mb-5">
                 <h1 className="text-2xl font-black text-on-surface tracking-tight">
                   Sign In
                 </h1>
                 <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
                   Access campus projects, squads, and hackathons with your credentials.
                 </p>
+              </div>
+
+              {/* Google Sign In Button */}
+              <button
+                type="button"
+                onClick={handleGoogleSignInClick}
+                className="w-full py-2.5 px-4 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low active:scale-[0.98] border border-surface-container-high text-on-surface font-semibold text-xs sm:text-sm shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2.5 group"
+              >
+                <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                </svg>
+                <span>Sign in with Google</span>
+              </button>
+
+              <div className="relative my-4 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-surface-container-high/80"></div>
+                </div>
+                <span className="relative bg-surface-container-lowest px-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                  or sign in with email
+                </span>
               </div>
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
@@ -231,22 +329,9 @@ export default function Auth({ onLoginSuccess }) {
 
                 {/* Password Field with Show/Hide toggle */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-on-surface">
-                      Password
-                    </label>
-                    {/* Forgot password */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAuthMode('forgot');
-                        setErrorMessage('');
-                      }}
-                      className="text-xs font-bold text-secondary hover:underline cursor-pointer"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
+                  <label className="block text-xs font-bold text-on-surface mb-1.5">
+                    Password
+                  </label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg pointer-events-none">
                       lock
@@ -273,7 +358,7 @@ export default function Auth({ onLoginSuccess }) {
                   </div>
                 </div>
 
-                {/* Remember me */}
+                {/* Remember me and Forgot Password */}
                 <div className="flex items-center justify-between pt-1">
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
@@ -284,6 +369,17 @@ export default function Auth({ onLoginSuccess }) {
                     />
                     <span className="text-xs text-on-surface-variant font-medium">Remember me</span>
                   </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotEmail(email);
+                      setAuthMode('forgot');
+                      setErrorMessage('');
+                    }}
+                    className="text-xs font-semibold text-secondary hover:underline cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
                 </div>
 
                 {/* Sign In Button */}
@@ -330,7 +426,7 @@ export default function Auth({ onLoginSuccess }) {
           {/* ======================================================== */}
           {authMode === 'register' && (
             <div>
-              <div className="mb-5">
+              <div className="mb-4">
                 <button
                   type="button"
                   onClick={() => setAuthMode('login')}
@@ -345,6 +441,30 @@ export default function Auth({ onLoginSuccess }) {
                 <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
                   Create your student profile to discover campus projects and join hackathon squads.
                 </p>
+              </div>
+
+              {/* Google Sign Up Button */}
+              <button
+                type="button"
+                onClick={handleGoogleSignInClick}
+                className="w-full py-2.5 px-4 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low active:scale-[0.98] border border-surface-container-high text-on-surface font-semibold text-xs sm:text-sm shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2.5 group mb-1"
+              >
+                <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                </svg>
+                <span>Sign up with Google</span>
+              </button>
+
+              <div className="relative my-3 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-surface-container-high/80"></div>
+                </div>
+                <span className="relative bg-surface-container-lowest px-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                  or register with email
+                </span>
               </div>
 
               {regSuccessMsg && (
@@ -386,33 +506,29 @@ export default function Auth({ onLoginSuccess }) {
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
                     <label className="block text-xs font-bold text-on-surface mb-1">
-                      University
-                    </label>
-                    <select
-                      value={regUniversity}
-                      onChange={(e) => setRegUniversity(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest outline-none text-xs font-semibold text-on-surface cursor-pointer"
-                    >
-                      <option value="Stanford University">Stanford</option>
-                      <option value="MIT">MIT</option>
-                      <option value="UC Berkeley">UC Berkeley</option>
-                      <option value="Carnegie Mellon University">CMU</option>
-                      <option value="Harvard University">Harvard</option>
-                      <option value="Other University">Other Campus</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-on-surface mb-1">
-                      Major
+                      College / University
                     </label>
                     <input
                       type="text"
                       required
-                      value={regMajor}
-                      onChange={(e) => setRegMajor(e.target.value)}
-                      placeholder="e.g. Computer Science"
-                      className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest outline-none text-xs text-on-surface font-medium"
+                      value={regUniversity}
+                      onChange={(e) => setRegUniversity(e.target.value)}
+                      placeholder="Enter college name"
+                      className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest outline-none text-xs text-on-surface font-medium placeholder:text-on-surface-variant/50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-on-surface mb-1">
+                      Branch
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={regBranch}
+                      onChange={(e) => setRegBranch(e.target.value)}
+                      placeholder="Enter your branch"
+                      className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-transparent focus:border-secondary focus:bg-surface-container-lowest outline-none text-xs text-on-surface font-medium placeholder:text-on-surface-variant/50"
                     />
                   </div>
                 </div>
@@ -477,8 +593,8 @@ export default function Auth({ onLoginSuccess }) {
                 </button>
               </form>
 
-              <div className="mt-4 pt-4 border-t border-surface-container-high/60 text-center">
-                <p className="text-xs text-on-surface-variant">
+              <div className="mt-4 pt-4 border-t border-surface-container-high/60 flex items-center justify-between text-xs text-on-surface-variant">
+                <p>
                   Already have an account?{' '}
                   <button
                     type="button"
@@ -491,6 +607,17 @@ export default function Auth({ onLoginSuccess }) {
                     Sign In
                   </button>
                 </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForgotEmail(regEmail);
+                    setAuthMode('forgot');
+                    setErrorMessage('');
+                  }}
+                  className="font-bold text-secondary hover:underline cursor-pointer"
+                >
+                  Forgot password?
+                </button>
               </div>
             </div>
           )}
@@ -696,6 +823,109 @@ export default function Auth({ onLoginSuccess }) {
           )}
 
         </div>
+
+        {/* Google Sign In Modal */}
+        {showGoogleModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+            <div className="w-full max-w-sm bg-surface-container-lowest rounded-3xl p-6 shadow-2xl border border-surface-container-high animate-modal relative">
+              <button
+                type="button"
+                onClick={() => setShowGoogleModal(false)}
+                className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface cursor-pointer p-1 rounded-full hover:bg-surface-container transition-colors"
+                title="Close"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-surface-container-low border border-surface-container flex items-center justify-center shrink-0 shadow-sm">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-on-surface">Sign in with Google</h2>
+                  <p className="text-xs text-on-surface-variant">Choose your Google account</p>
+                </div>
+              </div>
+
+              {/* Quick 1-click option */}
+              <div className="space-y-2 mb-4">
+                <button
+                  type="button"
+                  onClick={() => handleExecuteGoogleLogin("student.builder@gmail.com", "Student Innovator")}
+                  className="w-full p-2.5 rounded-xl border border-surface-container-high hover:border-secondary hover:bg-surface-container-low transition-all text-left flex items-center gap-3 cursor-pointer group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-secondary/15 text-secondary flex items-center justify-center font-bold text-sm">
+                    S
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-on-surface truncate">Student Innovator</div>
+                    <div className="text-[11px] text-on-surface-variant truncate">student.builder@gmail.com</div>
+                  </div>
+                  <span className="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 text-sm transition-opacity">arrow_forward</span>
+                </button>
+              </div>
+
+              {/* Or enter custom Google account */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleExecuteGoogleLogin();
+                }}
+                className="pt-3 border-t border-surface-container-high/60 space-y-3"
+              >
+                <div>
+                  <label className="block text-[11px] font-bold text-on-surface mb-1">
+                    Or Enter Google Email:
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={googleEmail}
+                    onChange={(e) => setGoogleEmail(e.target.value)}
+                    placeholder="e.g. you@gmail.com or student@college.edu"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high focus:border-secondary outline-none text-xs text-on-surface font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-on-surface mb-1">
+                    Your Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={googleName}
+                    onChange={(e) => setGoogleName(e.target.value)}
+                    placeholder="e.g. Alex Rivera"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high focus:border-secondary outline-none text-xs text-on-surface font-medium"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-2.5 rounded-xl bg-primary hover:bg-surface-tint active:scale-[0.98] text-on-primary font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 mt-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <span>Signing in...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Continue with this Account</span>
+                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer Branding */}

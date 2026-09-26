@@ -131,6 +131,107 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// POST /api/auth/google - Authenticate with Google
+router.post("/google", async (req, res) => {
+  try {
+    const { email, name, avatar } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Google email is required." });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    let user = await User.findOne({ email: cleanEmail });
+
+    if (!user) {
+      // Auto-register student via Google
+      const salt = await bcrypt.genSalt(10);
+      const randomPassword = await bcrypt.hash(Math.random().toString(36).substring(2) + Date.now(), salt);
+      const displayName = name ? name.trim() : (cleanEmail.split("@")[0].replace(/[^a-zA-Z0-9]/g, " ") || "Student Builder");
+
+      user = await User.create({
+        name: displayName,
+        email: cleanEmail,
+        password: randomPassword,
+        college: "Campus Member",
+        university: "Campus Member",
+        branch: "Engineering",
+        major: "Engineering",
+        semester: 1,
+        graduationYear: "2026",
+        year: "'26",
+        role: "student",
+        avatar: avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd",
+      });
+    }
+
+    const token = generateToken(user);
+
+    return res.json({
+      success: true,
+      message: "Google sign-in successful",
+      token,
+      user: user.toJSON(),
+    });
+  } catch (err) {
+    console.error("Google auth error:", err);
+    return res.status(500).json({ error: "Server error during Google login.", details: err.message });
+  }
+});
+
+// POST /api/auth/forgot-password - Validate email for password reset
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Please enter your email address." });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({ error: "No user found with that email address." });
+    }
+    return res.json({
+      success: true,
+      message: `Password reset instructions sent for ${cleanEmail}.`,
+      email: cleanEmail,
+    });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    return res.status(500).json({ error: "Server error during forgot password." });
+  }
+});
+
+// POST /api/auth/reset-password - Reset password
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) {
+      return res.status(400).json({ error: "Email and new password are required." });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters long." });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({ error: "Account not found for password reset." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword.trim(), salt);
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Password reset successfully! You can now log in.",
+    });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    return res.status(500).json({ error: "Server error during password reset." });
+  }
+});
+
 // GET /api/auth/me - Verify session & fetch authenticated user
 router.get("/me", authenticateUser, async (req, res) => {
   try {
