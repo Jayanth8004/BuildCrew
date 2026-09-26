@@ -1,12 +1,13 @@
 import { useState } from 'react';
+import authApi from '../api/auth';
 
-export default function Auth({ onLoginSuccess, accounts = [] }) {
+export default function Auth({ onLoginSuccess }) {
   // Modes: 'login' | 'register' | 'forgot' | 'reset'
   const [authMode, setAuthMode] = useState('login');
   
   // Login State
-  const [email, setEmail] = useState('jayanth@buildcrew.com');
-  const [password, setPassword] = useState('buildcrew123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -48,67 +49,32 @@ export default function Auth({ onLoginSuccess, accounts = [] }) {
     setIsLoading(true);
 
     try {
-      // Connect to backend authentication API
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password: password.trim() })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setIsLoading(false);
-        if (data.user) {
-          onLoginSuccess(data.user);
-          return;
-        }
-      } else {
-        const errorData = await res.json().catch(() => ({}));
-        setIsLoading(false);
-        setErrorMessage(errorData.error || 'Invalid credentials.');
-        return;
-      }
-    } catch {
-      // Resilient fallback if backend is momentarily offline
+      const data = await authApi.login(email.trim(), password.trim());
       setIsLoading(false);
-      const availableAccounts = accounts && accounts.length > 0 ? accounts : [];
-      const matched = availableAccounts.find(
-        acc => acc.email.toLowerCase() === email.trim().toLowerCase()
-      );
-
-      if (matched) {
-        if (password.trim() === matched.password || password.trim() === 'buildcrew123' || password.trim() === 'password123') {
-          onLoginSuccess(matched);
-          return;
-        } else {
-          setErrorMessage('Invalid password. Please check your credentials.');
-          return;
-        }
+      if (data.user) {
+        onLoginSuccess(data.user);
       }
-
-      // If user typed custom email, authenticate as student
-      if (email.includes('@')) {
-        const customUser = {
-          id: `user-${Date.now()}`,
-          email: email.trim(),
-          name: email.split('@')[0].replace('.', ' ').replace(/^./, str => str.toUpperCase()),
-          role: 'student',
-          university: 'Collegiate Member',
-          major: 'Computer Science',
-          gradYear: '2026',
-          avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
-        };
-        onLoginSuccess(customUser);
-        return;
-      } else {
-        setErrorMessage('Please enter a valid email address.');
-      }
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage(err.message || 'Invalid email or password.');
     }
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    if (!regFullName.trim()) {
+      setErrorMessage('Please enter your full name.');
+      return;
+    }
+    if (!regEmail.trim()) {
+      setErrorMessage('Please enter your email address.');
+      return;
+    }
+    if (regPassword.length < 6) {
+      setErrorMessage('Password must be at least 6 characters long.');
+      return;
+    }
     if (regPassword !== regConfirmPassword) {
       setErrorMessage('Passwords do not match.');
       return;
@@ -119,23 +85,30 @@ export default function Auth({ onLoginSuccess, accounts = [] }) {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      const newStudent = {
-        id: `user-${Date.now()}`,
+
+    try {
+      const data = await authApi.register({
         name: regFullName.trim(),
         email: regEmail.trim(),
-        role: 'student',
-        university: regUniversity,
-        major: regMajor,
-        gradYear: regGradYear,
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
-      };
-      setRegSuccessMsg('Account created successfully! Logging you in...');
+        password: regPassword.trim(),
+        college: regUniversity.trim(),
+        university: regUniversity.trim(),
+        branch: regMajor.trim(),
+        major: regMajor.trim(),
+        graduationYear: regGradYear.trim(),
+      });
+
+      setIsLoading(false);
+      setRegSuccessMsg('Account created successfully in MongoDB! Signing in...');
       setTimeout(() => {
-        onLoginSuccess(newStudent);
-      }, 800);
-    }, 600);
+        if (data.user) {
+          onLoginSuccess(data.user);
+        }
+      }, 700);
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage(err.message || 'Registration failed. Please check your information.');
+    }
   };
 
   const handleForgotSubmit = (e) => {
@@ -348,46 +321,6 @@ export default function Auth({ onLoginSuccess, accounts = [] }) {
                     Create account
                   </button>
                 </p>
-              </div>
-
-              {/* Demo Accounts Quick-Fill Pill */}
-              <div className="mt-4 p-3 rounded-2xl bg-surface-container-low border border-surface-container-high/60 text-[11px] space-y-1.5">
-                <div className="flex items-center justify-between text-outline font-bold uppercase tracking-wider text-[10px]">
-                  <span>Demo Accounts</span>
-                  <span className="text-secondary font-mono">Password: buildcrew123</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('jayanth@buildcrew.com');
-                      setPassword('buildcrew123');
-                    }}
-                    className="px-2 py-1 rounded-lg bg-surface-container-lowest hover:bg-white text-on-surface font-semibold border border-surface-container-high text-[10px] transition-all cursor-pointer"
-                  >
-                    Admin: jayanth@buildcrew.com
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('praveen@buildcrew.com');
-                      setPassword('buildcrew123');
-                    }}
-                    className="px-2 py-1 rounded-lg bg-surface-container-lowest hover:bg-white text-on-surface font-semibold border border-surface-container-high text-[10px] transition-all cursor-pointer"
-                  >
-                    Admin: praveen@buildcrew.com
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('student@buildcrew.com');
-                      setPassword('buildcrew123');
-                    }}
-                    className="px-2 py-1 rounded-lg bg-surface-container-lowest hover:bg-white text-on-surface font-semibold border border-surface-container-high text-[10px] transition-all cursor-pointer"
-                  >
-                    Student: student@buildcrew.com
-                  </button>
-                </div>
               </div>
             </div>
           )}

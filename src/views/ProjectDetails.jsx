@@ -3,14 +3,15 @@ import React, { useState, useRef } from 'react';
 export default function ProjectDetails({ 
   project, 
   onBack, 
-  onApplySuccess 
+  onApplySuccess,
+  onViewProfile 
 }) {
   const [selectedRole, setSelectedRole] = useState(
     project.openVacancies?.[0]?.id || 'frontend'
   );
   const [whyAnswer, setWhyAnswer] = useState('');
   const [skillsInput, setSkillsInput] = useState('');
-  const [githubUrl, setGithubUrl] = useState('https://github.com/jayanthv');
+  const [githubUrl, setGithubUrl] = useState('');
   const [weeklyHours, setWeeklyHours] = useState(8);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -44,20 +45,20 @@ export default function ProjectDetails({
       const chosenRoleObj = project.openVacancies?.find(v => v.id === selectedRole);
       if (onApplySuccess) {
         onApplySuccess({
-          projectId: project.id,
+          projectId: project._id || project.id,
           projectTitle: project.title,
           role: chosenRoleObj?.title || 'Core Squad Engineer',
           submittedAt: 'Just now',
           status: 'Direct Lead Review',
           statusColor: 'bg-secondary-fixed text-on-secondary-fixed',
-          note: `${project.lead?.name || 'Squad Lead'} has been notified of your application.`
+          note: whyAnswer || `${project.lead?.name || 'Squad Lead'} has been notified of your application.`
         });
       }
-    }, 700);
+    }, 500);
   };
 
   // Fallback defaults if viewing a custom newly-created project
-  const leadName = project.lead?.name || 'Jayanth V.';
+  const leadName = project.lead?.name || 'Project Lead';
   const leadProgram = project.lead?.program || project.lead?.university || 'Stanford University';
   const openPositionsCount = project.openVacancies?.length || 1;
   const filledCount = project.filledCount || 2;
@@ -161,15 +162,22 @@ export default function ProjectDetails({
 
           {/* Lead Creator Metadata Strip */}
           <div className="flex flex-wrap items-center gap-space-lg pt-space-md mt-space-xs bg-surface-container-low/60 rounded-xl p-space-md">
-            <div className="flex items-center gap-space-sm">
+            <div 
+              onClick={() => {
+                const leadId = (typeof project.createdBy === 'object' ? project.createdBy?._id : project.createdBy) || project.lead?.id;
+                if (leadId && onViewProfile) onViewProfile(leadId);
+              }}
+              className="flex items-center gap-space-sm cursor-pointer hover:opacity-85 transition-opacity"
+              title="View student builder profile"
+            >
               <img
                 src={project.lead?.leadAvatarFull || project.lead?.avatar}
                 alt={leadName}
-                className="w-11 h-11 rounded-full object-cover shadow-sm shrink-0"
+                className="w-11 h-11 rounded-full object-cover shadow-sm shrink-0 ring-2 ring-transparent hover:ring-secondary transition-all"
               />
               <div>
                 <div className="flex items-center gap-1">
-                  <span className="font-title-sm text-title-sm text-on-surface font-semibold">
+                  <span className="font-title-sm text-title-sm text-on-surface font-semibold hover:text-secondary transition-colors">
                     {leadName}
                   </span>
                   <span className="material-symbols-outlined text-secondary text-sm" title="Verified Campus Builder">
@@ -787,10 +795,22 @@ export default function ProjectDetails({
             <div className="space-y-space-sm">
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low font-body-sm text-body-sm">
                 <div className="flex items-center gap-space-xs text-on-surface">
-                  <span className="material-symbols-outlined text-secondary text-base">lock</span>
-                  <span>Private GitHub Repo</span>
+                  <span className="material-symbols-outlined text-secondary text-base">code</span>
+                  <span>GitHub Repository</span>
                 </div>
-                <span className="font-label-sm text-label-sm text-outline">Granted on join</span>
+                {project.githubRepository ? (
+                  <a
+                    href={project.githubRepository.startsWith('http') ? project.githubRepository : `https://${project.githubRepository}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <span>View Repo</span>
+                    <span className="material-symbols-outlined text-xs">arrow_outward</span>
+                  </a>
+                ) : (
+                  <span className="font-label-sm text-label-sm text-outline">Granted on join</span>
+                )}
               </div>
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low font-body-sm text-body-sm">
                 <div className="flex items-center gap-space-xs text-on-surface">

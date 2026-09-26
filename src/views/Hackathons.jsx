@@ -15,7 +15,8 @@ export default function Hackathons({
   onApplySquad,
   onInviteBuilder,
   onCreateSquad,
-  showToast
+  showToast,
+  currentUser
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusTab, setStatusTab] = useState('all'); // 'all' | 'open' | 'upcoming' | 'finished'
@@ -48,12 +49,12 @@ export default function Hackathons({
 
   // Active Flagship for Hero Spotlight
   const flagship = useMemo(() => {
-    return hackathons.find(h => h.isFeatured || h.id === 'hacknova-2026') || hackathons[0];
+    return hackathons.find(h => h.isFeatured) || hackathons[0] || null;
   }, [hackathons]);
 
   // Overall Counts for Status Tabs matching all 5 lifecycle states
   const tabCounts = useMemo(() => {
-    const listWithoutFlagship = hackathons.filter(h => !flagship || h.id !== flagship.id);
+    const listWithoutFlagship = hackathons.filter(h => !flagship || (h._id || h.id) !== (flagship._id || flagship.id));
     return {
       all: listWithoutFlagship.length,
       open: listWithoutFlagship.filter(h => h.status === 'open').length,
@@ -68,7 +69,7 @@ export default function Hackathons({
   const filteredHackathons = useMemo(() => {
     return hackathons.filter(h => {
       // Exclude flagship from standard list so it's highlighted in the Hero
-      if (flagship && h.id === flagship.id) return false;
+      if (flagship && (h._id || h.id) === (flagship._id || flagship.id)) return false;
 
       // Search query
       if (searchQuery.trim()) {
@@ -490,6 +491,7 @@ export default function Hackathons({
         onInviteBuilder={onInviteBuilder}
         onCreateSquad={onCreateSquad}
         showToast={showToast}
+        currentUser={currentUser}
       />
 
       {/* Comprehensive Details Modal */}
@@ -499,7 +501,7 @@ export default function Hackathons({
         onClose={() => setSelectedHackathon(null)}
         onFindSquad={(h) => handleOpenSquadUp(h)}
         onOpenTeamDetails={(team) => setSelectedTeamDetails(team)}
-        hackathonSquads={(hackathonSquads || []).filter(sq => sq.hackathonId === selectedHackathon?.id)}
+        hackathonSquads={(hackathonSquads || []).filter(sq => sq.hackathonId === (selectedHackathon?._id || selectedHackathon?.id))}
       />
 
       {/* Hackathon Team Details Modal */}

@@ -4,7 +4,7 @@ export default function QuickApplyModal({ project, isOpen, onClose, onApplySucce
   const [selectedRole, setSelectedRole] = useState('');
   const [motivation, setMotivation] = useState('');
   const [skills, setSkills] = useState('');
-  const [portfolioUrl, setPortfolioUrl] = useState('https://github.com/jayanthv');
+  const [portfolioUrl, setPortfolioUrl] = useState('');
   const [hours, setHours] = useState(8);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -19,13 +19,13 @@ export default function QuickApplyModal({ project, isOpen, onClose, onApplySucce
       setSubmitted(true);
       if (onApplySuccess) {
         onApplySuccess({
-          projectId: project.id,
+          projectId: project._id || project.id,
           projectTitle: project.title,
           role: selectedRole || (project.openVacancies?.[0]?.title || 'Core Contributor'),
           submittedAt: 'Just now',
           status: 'Pending Lead Review',
           statusColor: 'bg-secondary-fixed text-on-secondary-fixed',
-          note: `Application submitted to ${project.lead?.name || 'project lead'}.`
+          note: motivation || `Application submitted to ${project.lead?.name || 'project lead'}.`
         });
       }
       setTimeout(() => {

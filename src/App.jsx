@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import CommandPalette from './components/CommandPalette';
@@ -16,22 +16,31 @@ import Auth from './views/Auth';
 import AdminDashboard from './views/AdminDashboard';
 import AccessDenied from './views/AccessDenied';
 
+import authApi from './api/auth';
+import projectsApi from './api/projects';
+import hackathonsApi from './api/hackathons';
+import usersApi from './api/users';
+import applicationsApi from './api/applications';
+import invitationsApi from './api/invitations';
+import notificationsApi from './api/notifications';
+
 export default function App() {
   // Authentication & Role Routing state
   const [currentUser, setCurrentUser] = useState(null);
   const [activeView, setActiveView] = useState('discover-projects');
+  const [viewingProfileUserId, setViewingProfileUserId] = useState(null);
 
-  // Backend Hydrated States (loaded from Express server via fetch)
+  // Backend Hydrated States from MongoDB Atlas
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [hackathons, setHackathons] = useState([]);
-  const [defaultHackathons, setDefaultHackathons] = useState([]);
   const [squadWins, setSquadWins] = useState([]);
   const [builders, setBuilders] = useState([]);
   const [applications, setApplications] = useState([]);
-  const [accounts, setAccounts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [hackathonSquads, setHackathonSquads] = useState([]);
   const [isBackendLoading, setIsBackendLoading] = useState(true);
+  const [backendError, setBackendError] = useState(null);
 
   // Modals state
   const [quickApplyProject, setQuickApplyProject] = useState(null);
@@ -48,64 +57,144 @@ export default function App() {
   };
 
   // =========================================================================
-  // 🔌 CONNECTED BACKEND CODE: Fetch initial platform data via Express API
+  // 🔌 Fetch Platform Data from MongoDB API
   // =========================================================================
+  const fetchHackathons = useCallback(async () => {
+    try {
+      const data = await hackathonsApi.getHackathons();
+      if (Array.isArray(data)) {
+        setHackathons(data);
+      }
+    } catch (err) {
+      console.warn('Could not fetch hackathons from MongoDB:', err);
+    }
+  }, []);
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      const data = await projectsApi.getProjects();
+      const loaded = Array.isArray(data) ? data : (data.projects || []);
+      setProjects(loaded);
+      setSelectedProject(prev => prev || (loaded.length > 0 ? loaded[0] : null));
+    } catch (err) {
+      console.warn('Could not fetch projects from MongoDB:', err);
+    }
+  }, []);
+
+  const fetchBuilders = useCallback(async () => {
+    try {
+      const data = await usersApi.getUsers({ role: 'student' });
+      setBuilders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.warn('Could not fetch builders from MongoDB:', err);
+    }
+  }, []);
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      const [appsRes, notifsRes] = await Promise.allSettled([
+        applicationsApi.getApplications(),
+        notificationsApi.getNotifications()
+      ]);
+
+      if (appsRes.status === 'fulfilled' && Array.isArray(appsRes.value)) {
+        setApplications(appsRes.value);
+      }
+      if (notifsRes.status === 'fulfilled' && Array.isArray(notifsRes.value)) {
+        setNotifications(notifsRes.value);
+      }
+    } catch (err) {
+      console.warn('Could not load user data from backend:', err);
+    }
+  }, []);
+
+  // Hydrate session and initial MongoDB platform data on mount
   useEffect(() => {
     let isMounted = true;
 
-    const fetchPlatformData = async () => {
+    // Safety timeout: ensure loading screen is never stuck
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) {
+        setIsBackendLoading(false);
+      }
+    }, 3000);
+
+    const initializeSessionAndData = async () => {
       try {
         setIsBackendLoading(true);
-        console.log('📡 [BuildCrew Frontend] Requesting bootstrap data from Express backend (http://localhost:5000/api/bootstrap)...');
+        setBackendError(null);
 
-        // Fetch data from Express server
-        const res = await fetch('http://localhost:5000/api/bootstrap');
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: Failed to fetch from backend`);
+        // 1. Session Re-hydration from JWT if token is stored
+        let authenticatedUser = null;
+        const storedToken = authApi.getToken();
+        if (storedToken) {
+          try {
+            const authData = await authApi.getMe();
+            if (authData?.user) {
+              authenticatedUser = authData.user;
+              if (isMounted) {
+                setCurrentUser(authenticatedUser);
+                if (authenticatedUser.role === 'admin') {
+                  setActiveView('admin-dashboard');
+                } else {
+                  setActiveView('discover-projects');
+                }
+              }
+            }
+          } catch {
+            // Expired or invalid token - clear session cleanly
+            authApi.logout();
+          }
         }
 
-        const payload = await res.json();
-        const data = payload.data || {};
-
-        if (!isMounted) return;
-
-        // 1. Set Projects State
-        const loadedProjects = Array.isArray(data.projects) ? data.projects : [];
-        setProjects(loadedProjects);
-        if (loadedProjects.length > 0) {
-          setSelectedProject(loadedProjects[0]);
-        }
-
-        // 2. Set Hackathons State (preserving any custom saved hackathons)
-        const loadedHackathons = Array.isArray(data.hackathons) ? data.hackathons : [];
-        setDefaultHackathons(loadedHackathons);
-
+        // 2. Fetch initial platform data from MongoDB Atlas
         try {
-          const saved = localStorage.getItem('buildcrew_hackathons');
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setHackathons(parsed);
-            } else {
-              setHackathons(loadedHackathons);
+          const res = await fetch('http://localhost:5000/api/bootstrap');
+          if (res.ok) {
+            const payload = await res.json();
+            const data = payload.data || {};
+            if (isMounted) {
+              const loadedProjects = Array.isArray(data.projects) ? data.projects : [];
+              setProjects(loadedProjects);
+              setSelectedProject(prev => prev || (loadedProjects.length > 0 ? loadedProjects[0] : null));
+              setHackathons(Array.isArray(data.hackathons) ? data.hackathons : []);
+              setSquadWins(Array.isArray(data.squadWins) ? data.squadWins : []);
+              setBuilders(Array.isArray(data.builders) ? data.builders : []);
+              setHackathonSquads(Array.isArray(data.hackathonSquads) ? data.hackathonSquads : []);
             }
           } else {
-            setHackathons(loadedHackathons);
+            await Promise.allSettled([
+              fetchProjects(),
+              fetchHackathons(),
+              fetchBuilders()
+            ]);
           }
         } catch {
-          setHackathons(loadedHackathons);
+          await Promise.allSettled([
+            fetchProjects(),
+            fetchHackathons(),
+            fetchBuilders()
+          ]);
         }
 
-        // 3. Set Squad Wins, Builders, Applications, Accounts, and Hackathon Squads
-        setSquadWins(Array.isArray(data.squadWins) ? data.squadWins : []);
-        setBuilders(Array.isArray(data.builders) ? data.builders : []);
-        setApplications(Array.isArray(data.applications) ? data.applications : []);
-        setAccounts(Array.isArray(data.accounts) ? data.accounts : []);
-        setHackathonSquads(Array.isArray(data.hackathonSquads) ? data.hackathonSquads : []);
+        // 3. If authenticated, fetch user applications and notifications
+        if (authenticatedUser && isMounted) {
+          try {
+            const [apps, notifs] = await Promise.all([
+              applicationsApi.getApplications().catch(() => []),
+              notificationsApi.getNotifications().catch(() => [])
+            ]);
+            if (isMounted) {
+              setApplications(Array.isArray(apps) ? apps : []);
+              setNotifications(Array.isArray(notifs) ? notifs : []);
+            }
+          } catch {
+            // Silently continue
+          }
+        }
 
-        console.log('✅ [BuildCrew Frontend] Data loaded successfully from Express backend server.');
       } catch (err) {
-        console.warn('⚠️ [BuildCrew Frontend] Could not connect to Express backend at http://localhost:5000. Ensure "npm run server" is running.', err);
+        console.error('Platform initialization failed:', err);
       } finally {
         if (isMounted) {
           setIsBackendLoading(false);
@@ -113,36 +202,16 @@ export default function App() {
       }
     };
 
-    fetchPlatformData();
+    initializeSessionAndData();
 
     return () => {
       isMounted = false;
+      clearTimeout(safetyTimer);
     };
   }, []);
 
-  // Hackathons persistence helper
-  const handleUpdateHackathons = (newHackathons) => {
-    const list = typeof newHackathons === 'function' ? newHackathons(hackathons) : newHackathons;
-    setHackathons(list);
-    try {
-      localStorage.setItem('buildcrew_hackathons', JSON.stringify(list));
-    } catch (e) {
-      console.warn('Failed to persist hackathons', e);
-    }
-  };
-
-  const handleResetHackathonsToDefault = () => {
-    setHackathons(defaultHackathons);
-    try {
-      localStorage.removeItem('buildcrew_hackathons');
-    } catch (e) {
-      console.warn('Failed to clear hackathon cache', e);
-    }
-    showToast('Circuit Hackathons restored to original platform defaults.');
-  };
-
   // Auth Handlers
-  const handleLoginSuccess = (user) => {
+  const handleLoginSuccess = async (user) => {
     setCurrentUser(user);
     if (user.role === 'admin') {
       setActiveView('admin-dashboard');
@@ -151,27 +220,64 @@ export default function App() {
       setActiveView('discover-projects');
       showToast(`Welcome back to campus circuit, ${user.name}!`);
     }
+    // Refresh user-specific data from MongoDB
+    await fetchUserData();
+    await fetchHackathons();
+    await fetchProjects();
   };
 
   const handleLogout = () => {
+    authApi.logout();
     setCurrentUser(null);
     setActiveView('discover-projects');
+    setApplications([]);
+    setNotifications([]);
     showToast('Signed out of BuildCrew session.');
   };
 
-  const handleAddHackathon = (newHack) => {
-    handleUpdateHackathons(prev => [newHack, ...prev]);
-    showToast(`Hackathon "${newHack.title}" submitted to circuit registry!`);
+  const handleUpdateUser = (updatedUser) => {
+    setCurrentUser(updatedUser);
+    try {
+      localStorage.setItem('buildcrew_user', JSON.stringify(updatedUser));
+    } catch (e) {
+      console.warn('Failed to cache user session:', e);
+    }
+    showToast('Profile updated successfully in MongoDB!');
+  };
 
-    // Synchronize new hackathon with backend API
-    fetch('http://localhost:5000/api/hackathons', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newHack)
-    }).catch(err => console.warn('Could not sync hackathon to backend:', err));
+  // Hackathons management
+  const handleAddHackathon = async (newHack) => {
+    try {
+      const res = await hackathonsApi.createHackathon(newHack);
+      const savedHack = res.hackathon || res;
+      setHackathons(prev => [savedHack, ...prev]);
+      showToast(`Hackathon "${savedHack.title}" submitted to circuit registry!`);
+    } catch (err) {
+      console.error('Failed to create hackathon:', err);
+      showToast(`Error creating hackathon: ${err.message}`);
+    }
+  };
+
+  const handleUpdateHackathons = (newHackathons) => {
+    const list = typeof newHackathons === 'function' ? newHackathons(hackathons) : newHackathons;
+    setHackathons(list);
   };
 
   // Nav actions
+  const handleViewProfile = (userId) => {
+    setViewingProfileUserId(userId);
+    setActiveView('profile');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavigateView = (view) => {
+    if (view === 'profile' || view === 'settings') {
+      setViewingProfileUserId(null);
+    }
+    setActiveView(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSelectProject = (proj) => {
     setSelectedProject(proj);
     setActiveView('project-details');
@@ -179,7 +285,7 @@ export default function App() {
   };
 
   const handleSelectProjectById = (id) => {
-    const found = projects.find(p => p.id === id);
+    const found = projects.find(p => (p._id === id || p.id === id));
     if (found) {
       handleSelectProject(found);
     } else {
@@ -191,57 +297,122 @@ export default function App() {
     setQuickApplyProject(proj);
   };
 
-  const handleApplySuccess = (newApp) => {
-    const fullApp = {
-      id: `app-${Date.now()}`,
-      ...newApp
-    };
-    setApplications(prev => [fullApp, ...prev]);
-    showToast(`Application sent for ${newApp.role} in ${newApp.projectTitle}!`);
-
-    // Synchronize application with backend API
-    fetch('http://localhost:5000/api/applications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(fullApp)
-    }).catch(err => console.warn('Could not sync application to backend:', err));
+  const handleApplySuccess = async (newApp) => {
+    try {
+      const targetId = newApp.projectId;
+      const res = await applicationsApi.applyToProject({
+        projectId: targetId,
+        requestedRole: newApp.role || 'Core Contributor',
+        message: newApp.note || 'Applying to collaborate on project.',
+      });
+      const savedApp = res.application || newApp;
+      setApplications(prev => [savedApp, ...prev]);
+      showToast(`Application sent for ${newApp.role} in ${newApp.projectTitle || 'project'}!`);
+      // Re-sync projects and notifications from MongoDB
+      fetchProjects();
+      fetchUserData();
+    } catch (err) {
+      console.error('Apply error:', err);
+      showToast(err.message || 'Application could not be submitted');
+    }
   };
 
-  const handleAddProject = (newProj) => {
-    setProjects(prev => [newProj, ...prev]);
-    setSelectedProject(newProj);
-    setActiveView('project-details');
-    showToast(`Project "${newProj.title}" launched successfully!`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Synchronize new project with backend API
-    fetch('http://localhost:5000/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newProj)
-    }).catch(err => console.warn('Could not sync project to backend:', err));
+  const handleAddProject = async (newProj) => {
+    try {
+      const res = await projectsApi.createProject(newProj);
+      const savedProj = res.project || res;
+      setProjects(prev => [savedProj, ...prev]);
+      setSelectedProject(savedProj);
+      setActiveView('project-details');
+      showToast(`Project "${savedProj.title}" launched successfully in MongoDB!`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      console.error('Failed to create project:', err);
+      showToast(`Project creation failed: ${err.message}`);
+    }
   };
 
-  const handleInviteBuilder = (builderName) => {
-    showToast(`Invitation dispatched to ${builderName}!`);
+  const handleInviteBuilder = async (builder) => {
+    try {
+      const receiverId = typeof builder === 'object' ? (builder._id || builder.id) : builder;
+      const builderName = typeof builder === 'object' ? builder.name : 'Teammate';
+
+      if (!receiverId) {
+        showToast('Invalid builder ID for invitation');
+        return;
+      }
+
+      await invitationsApi.sendInvitation({
+        receiverId,
+        role: (typeof builder === 'object' ? builder.roleTitle || builder.role : '') || 'Teammate / Contributor',
+        message: `Join our squad on BuildCrew!`
+      });
+      showToast(`Invitation dispatched to ${builderName}!`);
+      fetchUserData();
+    } catch (err) {
+      console.error('Invitation error:', err);
+      showToast(`Invitation error: ${err.message}`);
+    }
+  };
+
+  const handleAddBuilder = async (newBuilder) => {
+    try {
+      const res = await usersApi.createBuilder(newBuilder);
+      const savedBuilder = res.builder || newBuilder;
+      setBuilders(prev => [savedBuilder, ...prev]);
+      showToast(`Worker / Builder "${savedBuilder.name}" added successfully in MongoDB!`);
+    } catch (err) {
+      console.error('Failed to create builder:', err);
+      setBuilders(prev => [newBuilder, ...prev]);
+      showToast(`Worker / Builder "${newBuilder.name}" added!`);
+    }
+  };
+
+  // Notification actions
+  const handleMarkNotificationRead = async (id) => {
+    try {
+      await notificationsApi.markAsRead(id);
+      setNotifications(prev =>
+        prev.map(n => (n._id === id ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.warn('Could not mark notification as read:', err);
+    }
+  };
+
+  const handleMarkAllNotificationsRead = async () => {
+    try {
+      await notificationsApi.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    } catch (err) {
+      console.warn('Could not mark all notifications as read:', err);
+    }
   };
 
   // If unauthenticated: render complete Auth flow
   if (!currentUser) {
+    const hasToken = !!authApi.getToken();
     return (
       <div className="min-h-screen bg-background font-body-md text-on-surface antialiased">
-        {isBackendLoading ? (
+        {isBackendLoading && hasToken ? (
           <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
             <div className="w-12 h-12 rounded-2xl bg-secondary/20 flex items-center justify-center mb-4">
               <span className="material-symbols-outlined text-secondary text-2xl animate-spin">sync</span>
             </div>
             <h2 className="font-bold text-lg text-on-surface">Connecting to BuildCrew Backend...</h2>
             <p className="text-sm text-on-surface-variant mt-1">
-              Hydrating platform state from Express server (http://localhost:5000)
+              Hydrating platform state from MongoDB Atlas (buildcrew_db)
             </p>
           </div>
         ) : (
-          <Auth onLoginSuccess={handleLoginSuccess} accounts={accounts} />
+          <Auth onLoginSuccess={handleLoginSuccess} />
+        )}
+
+        {backendError && (
+          <div className="fixed bottom-6 left-6 z-50 bg-error-container text-on-error-container px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 font-body-sm text-body-sm">
+            <span className="material-symbols-outlined text-error text-lg">error</span>
+            <span>{backendError}</span>
+          </div>
         )}
 
         {toastMessage && (
@@ -261,12 +432,14 @@ export default function App() {
     );
   }
 
+  const unreadCount = notifications.filter(n => !n.read).length;
+
   return (
     <div className="min-h-screen bg-background text-on-surface flex flex-col font-body-md antialiased">
       {/* Fixed Navigation Sidebar */}
       <Sidebar
         activeView={activeView}
-        setActiveView={setActiveView}
+        setActiveView={handleNavigateView}
         onOpenPostProject={() => setIsPostProjectOpen(true)}
         currentUser={currentUser}
         onLogout={handleLogout}
@@ -282,14 +455,17 @@ export default function App() {
           setSearchQuery={setSearchQuery}
           onSearchFocus={() => {
             if (activeView !== 'discover-projects') {
-              setActiveView('discover-projects');
+              handleNavigateView('discover-projects');
             }
           }}
-          notificationCount={applications.length}
-          onNavigateProfile={() => setActiveView('profile')}
+          notificationCount={unreadCount}
+          notifications={notifications}
+          onMarkRead={handleMarkNotificationRead}
+          onMarkAllRead={handleMarkAllNotificationsRead}
+          onNavigateProfile={() => handleNavigateView('profile')}
           currentUser={currentUser}
           onLogout={handleLogout}
-          onOpenAdminDashboard={() => setActiveView('admin-dashboard')}
+          onOpenAdminDashboard={() => handleNavigateView('admin-dashboard')}
         />
 
         {/* Dynamic View Router */}
@@ -301,7 +477,7 @@ export default function App() {
                 currentUser={currentUser}
                 hackathons={hackathons}
                 onUpdateHackathons={handleUpdateHackathons}
-                onResetDefaults={handleResetHackathonsToDefault}
+                onRefreshHackathons={fetchHackathons}
                 showToast={showToast}
                 onNavigate={setActiveView}
               />
@@ -323,8 +499,10 @@ export default function App() {
           {activeView === 'project-details' && selectedProject && (
             <ProjectDetails
               project={selectedProject}
-              onBack={() => setActiveView('discover-projects')}
+              onBack={() => handleNavigateView('discover-projects')}
               onApplySuccess={handleApplySuccess}
+              onViewProfile={handleViewProfile}
+              currentUser={currentUser}
             />
           )}
 
@@ -340,6 +518,7 @@ export default function App() {
               onCreateSquad={handleAddProject}
               onAddHackathon={handleAddHackathon}
               showToast={showToast}
+              currentUser={currentUser}
             />
           )}
 
@@ -347,12 +526,17 @@ export default function App() {
             <FindBuilders
               builders={builders}
               onInvite={handleInviteBuilder}
+              onAddBuilder={handleAddBuilder}
+              onViewProfile={handleViewProfile}
+              showToast={showToast}
+              currentUser={currentUser}
             />
           )}
 
           {activeView === 'my-projects' && (
             <MyProjects
               projects={projects}
+              currentUser={currentUser}
               onSelectProject={handleSelectProject}
               onOpenPostProject={() => setIsPostProjectOpen(true)}
             />
@@ -381,41 +565,61 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-                <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
-                      HackNova 2026 Pod
-                    </span>
-                    <span className="font-label-sm text-label-sm text-secondary font-semibold">Sprint 2 Live</span>
+                {projects.filter(p => p.members?.some(m => (m._id === currentUser._id || m === currentUser._id)) || p.createdBy === currentUser._id).length === 0 ? (
+                  <div className="col-span-2 bg-surface-container-lowest rounded-2xl p-space-xl text-center text-on-surface-variant">
+                    <span className="material-symbols-outlined text-4xl text-outline mb-2">diversity_3</span>
+                    <p className="font-body-lg text-body-lg text-on-surface font-semibold">No active squads joined yet</p>
+                    <p className="font-body-sm text-body-sm mt-1">Explore Discover Projects or Squad Up in Hackathons to join a team.</p>
                   </div>
-                  <div>
-                    <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                      StudySync AI
-                    </h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-                      Collaborative Note Synthesizer &amp; Vector Graph Engine
-                    </p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-surface-container-low flex items-center justify-between font-body-sm text-body-sm">
-                    <span className="text-on-surface font-medium">Next Squad Sync</span>
-                    <span className="text-secondary font-semibold">Sunday 7 PM PT</span>
-                  </div>
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-surface-container-high/60">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectProjectById('studysync-ai')}
-                      className="py-2 px-4 rounded-xl bg-primary text-on-primary font-title-sm text-title-sm hover:bg-surface-tint transition-all cursor-pointer"
-                    >
-                      Open Squad Workspace
-                    </button>
-                  </div>
-                </div>
+                ) : (
+                  projects.filter(p => p.members?.some(m => (m._id === currentUser._id || m === currentUser._id)) || p.createdBy === currentUser._id).map((p, idx) => (
+                    <div key={p._id || idx} className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+                          {p.categoryBadge || 'Squad Pod'}
+                        </span>
+                        <span className="font-label-sm text-label-sm text-secondary font-semibold">Active Sprint</span>
+                      </div>
+                      <div>
+                        <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
+                          {p.title}
+                        </h3>
+                        <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                          {p.tagline || p.fullDescription}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-surface-container-low flex items-center justify-between font-body-sm text-body-sm">
+                        <span className="text-on-surface font-medium">Squad Lead</span>
+                        <span className="text-secondary font-semibold">{p.lead?.name || 'Lead Architect'}</span>
+                      </div>
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-surface-container-high/60">
+                        <button
+                          type="button"
+                          onClick={() => handleSelectProject(p)}
+                          className="py-2 px-4 rounded-xl bg-primary text-on-primary font-title-sm text-title-sm hover:bg-surface-tint transition-all cursor-pointer"
+                        >
+                          Open Squad Workspace
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
 
           {(activeView === 'profile' || activeView === 'settings') && (
-            <Profile />
+            <Profile
+              currentUser={currentUser}
+              targetUserId={viewingProfileUserId}
+              onBack={() => {
+                setViewingProfileUserId(null);
+                setActiveView('find-builders');
+              }}
+              onInviteBuilder={handleInviteBuilder}
+              onUpdateUser={handleUpdateUser}
+              showToast={showToast}
+            />
           )}
         </main>
       </div>
@@ -433,6 +637,7 @@ export default function App() {
         isOpen={isPostProjectOpen}
         onClose={() => setIsPostProjectOpen(false)}
         onAddProject={handleAddProject}
+        currentUser={currentUser}
       />
 
       {/* Command Palette (⌘K) */}

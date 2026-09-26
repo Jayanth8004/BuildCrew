@@ -1,7 +1,12 @@
 import React from 'react';
 
-export default function MyProjects({ projects, onSelectProject, onOpenPostProject }) {
-  const myCreated = projects.filter(p => p.lead?.name?.includes('Jayanth'));
+export default function MyProjects({ projects, currentUser, onSelectProject, onOpenPostProject }) {
+  const myCreated = projects.filter(p => {
+    if (!currentUser) return false;
+    const isOwnerId = p.createdBy === currentUser._id || p.createdBy?._id === currentUser._id;
+    const isLeadMatch = currentUser.name && p.lead?.name === currentUser.name;
+    return isOwnerId || isLeadMatch;
+  });
 
   return (
     <div className="flex flex-col w-full pb-space-xl space-y-space-lg">
@@ -47,7 +52,7 @@ export default function MyProjects({ projects, onSelectProject, onOpenPostProjec
           <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
             {myCreated.map(p => (
               <div
-                key={p.id}
+                key={p._id || p.id}
                 className="p-space-md rounded-xl bg-surface-container-low border border-surface-container-high/60 flex flex-col justify-between space-y-3"
               >
                 <div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 function generateHackathonId() {
   return `hack-${Date.now()}`;
@@ -8,7 +8,30 @@ function generateCircuitId() {
   return `BC-SUB-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
-export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackathon }) {
+const DEFAULT_HACKATHON_IMAGES = [
+  {
+    id: 'ai-future',
+    label: 'AI & Neural Graphs',
+    url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBjbkVkD8ugQCopgjlKUdX6h2t7iGR8U7cAotGEX4gkVp2iZGYgNXuhDd7uv8XKPdDKxRc5LVG5-2ku_w-inG49pGRXEBeatfaGIbtDqTB4GZbf-12sVHdMJBR4s9dSwOvIgdwjHPZxHAYY6iul7GnOXO1wqM8s9NQjaFCIpekgajipka8rL8aNXyl4sNuZ5jWKKChl91y1bgaayoCYgzuMAvhhpxODIRFzAx9FdSUbydfyLDzrLu9E'
+  },
+  {
+    id: 'treehacks',
+    label: 'Campus Circuit',
+    url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtB4g7Rt44tR_ssttqy-nFfXkLTLAZI2Df_pV8LofmlYWdeXDlAnC6fnhQ66qUJoVhiB8N_EfeGIh-zXnAf5J_V1vfxmSf4p011-amDyMylMhus7E4kYmRMbUdv95aeAV0vo3nxOXQAbwzTZaC6vaVEBzPf-XH7hzEhloFXiREPRvxrefJyiczzW30Q-0N_ofN1fn6eiKB2EPMVUWRZMyYtUqNlh8l3NeruxibmJn46c33N5Tvbmd1'
+  },
+  {
+    id: 'web3',
+    label: 'Quantum & ZK',
+    url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDj8rfKgKGYJOxl-peX0YLvOw6ySeIhn0XjE0cX3j7Pea0oBM1HHLCSYm-k4lm5vWUqCF1VtVwXY0QESMoDaSSF9tk9aQWB0T3D2BZDM6Ezy_23eymF3i6G6fes0oJ3aEM1-5XWifWl_PNo-39urmN5Q8g2NLDqQ2Lv6TE46GTEVc1EzdkGgpKT8Lge4aiJw7Uny0uDg47QiOKXP2wcPXRP3iufmQ9sldhgwMnZhOUilqmfFcPuoxbX'
+  },
+  {
+    id: 'health',
+    label: 'Bio & HealthTech',
+    url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAQ4L7we6LwbEsUj0RFqsg_rHzUjOuupTLlSo7mO7Spl-y4GdefKVfGecoaKgcF0XJ1VvW2j45ctDUZ4nxXbPfiJJNw2MKtCGo_xrr7hn7AOUc3pwPcQQ9uK4oE0mGO8B9rNXJKD3s9DSXWfXNllo9tyj-c7PYNiG7UJXRc2V8LVJhPAxT9LHLBLOqOGmkOAPdjqZt_WY66eWyYy_R9PMmoU7Jw-0bJD9sgc_70JjzrkZygUQ_mUfLB'
+  }
+];
+
+export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackathon, onSubmit }) {
   const [formData, setFormData] = useState({
     title: '',
     organizer: '',
@@ -19,10 +42,27 @@ export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackatho
     squadLimits: '2 to 4 Builders',
     website: '',
     tracks: ['ai'],
-    description: ''
+    description: '',
+    image: DEFAULT_HACKATHON_IMAGES[0].url
   });
 
+  const fileInputRef = useRef(null);
+
   if (!isOpen) return null;
+
+  const handleImageFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result;
+      if (typeof base64 === 'string') {
+        setFormData(prev => ({ ...prev, image: base64 }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const trackOptions = [
     { id: 'ai', label: 'AI / ML' },
@@ -45,20 +85,22 @@ export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackatho
     e.preventDefault();
     if (!formData.title.trim()) return;
 
+    const chosenImage = formData.image || DEFAULT_HACKATHON_IMAGES[0].url;
+
     const newHackathon = {
       id: generateHackathonId(),
       circuitId: generateCircuitId(),
-      title: formData.title,
-      subtitle: formData.organizer || 'Student Engineering Initiative',
+      title: formData.title.trim(),
+      subtitle: formData.organizer?.trim() || 'Student Engineering Initiative',
       organizer: {
-        name: formData.organizer || 'Student Engineering Initiative',
-        website: formData.website || '#',
+        name: formData.organizer?.trim() || 'Student Engineering Initiative',
+        website: formData.website?.trim() || '#',
         partnerType: 'Community Submitter'
       },
-      dates: formData.dates || 'Upcoming 2026',
-      location: formData.location || 'Campus / Virtual',
+      dates: formData.dates?.trim() || 'Upcoming 2026',
+      location: formData.location?.trim() || 'Campus / Virtual',
       mode: formData.mode,
-      prizePool: formData.prizePool || 'Prizes & Grants TBD',
+      prizePool: formData.prizePool?.trim() || 'Prizes & Grants TBD',
       squadLimits: formData.squadLimits,
       freeEntry: true,
       status: 'open',
@@ -72,7 +114,11 @@ export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackatho
       seekersCount: 6,
       tracks: formData.tracks,
       trackLabels: formData.tracks.map(t => trackOptions.find(opt => opt.id === t)?.label || t),
-      description: formData.description || 'Collegiate hackathon organized by student community partners.',
+      description: formData.description?.trim() || 'Collegiate hackathon organized by student community partners.',
+      image: chosenImage,
+      heroImage: chosenImage,
+      coverImage: chosenImage,
+      logo: chosenImage,
       bounties: [
         { track: 'Grand Prize', prize: formData.prizePool ? formData.prizePool.replace(/\$/g, '₹') : '₹10,000', sponsor: formData.organizer || 'Organizing Committee' }
       ],
@@ -82,7 +128,10 @@ export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackatho
       ]
     };
 
-    onSubmitHackathon(newHackathon);
+    const submitFn = onSubmitHackathon || onSubmit;
+    if (typeof submitFn === 'function') {
+      submitFn(newHackathon);
+    }
     onClose();
   };
 
@@ -246,6 +295,80 @@ export default function SubmitHackathonModal({ isOpen, onClose, onSubmitHackatho
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-low border border-surface-container-high focus:border-secondary outline-none text-on-surface text-sm transition-all resize-none"
             />
+          </div>
+
+          {/* Hackathon Cover Image Section */}
+          <div className="space-y-2 pt-2 border-t border-surface-container-high">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold uppercase text-outline block">
+                Hackathon Banner Image
+              </label>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs font-bold text-secondary hover:underline cursor-pointer flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-sm">upload</span>
+                <span>Upload from device</span>
+              </button>
+            </div>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleImageFileChange}
+              className="hidden"
+            />
+
+            {/* Banner Preview */}
+            <div className="relative w-full h-28 rounded-2xl overflow-hidden border border-surface-container-high bg-surface-container-low group">
+              <img
+                src={formData.image || DEFAULT_HACKATHON_IMAGES[0].url}
+                alt="Hackathon Preview"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-1.5 rounded-xl bg-white/90 hover:bg-white text-slate-900 text-xs font-bold cursor-pointer flex items-center gap-1 shadow-md"
+                >
+                  <span className="material-symbols-outlined text-sm">photo_camera</span>
+                  <span>Change Image</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Default Theme Presets */}
+            <div>
+              <span className="text-[11px] text-on-surface-variant font-medium block mb-1.5">
+                Or pick a default circuit theme:
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {DEFAULT_HACKATHON_IMAGES.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, image: preset.url }))}
+                    className={`relative rounded-xl overflow-hidden border text-left p-1 transition-all cursor-pointer ${
+                      formData.image === preset.url
+                        ? 'border-secondary ring-2 ring-secondary/30 bg-secondary/10'
+                        : 'border-surface-container-high hover:border-outline'
+                    }`}
+                  >
+                    <img
+                      src={preset.url}
+                      alt={preset.label}
+                      className="w-full h-10 object-cover rounded-lg mb-1"
+                    />
+                    <span className="text-[10px] font-bold text-on-surface block truncate">
+                      {preset.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="pt-3 border-t border-surface-container-high flex items-center justify-end gap-2.5">

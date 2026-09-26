@@ -1,10 +1,12 @@
 import { useState, useMemo, useRef } from 'react';
 import HackathonDetailsModal from '../components/hackathons/HackathonDetailsModal';
+import hackathonsApi from '../api/hackathons';
 
 export default function AdminDashboard({
   currentUser,
   hackathons,
   onUpdateHackathons,
+  onRefreshHackathons,
   onResetDefaults,
   showToast,
   onNavigate
@@ -173,7 +175,7 @@ export default function AdminDashboard({
   // Open Form to Edit Existing Hackathon
   const handleOpenEdit = (hack) => {
     setIsEditing(true);
-    setEditingId(hack.id);
+    setEditingId(hack._id || hack.id);
     setFormErrors({});
 
     const { min, max } = parseTeamSizes(hack);
@@ -254,42 +256,54 @@ export default function AdminDashboard({
   };
 
   // Duplicate / Clone Existing Hackathon
-  const handleDuplicate = (hack) => {
-    const cloned = {
-      ...hack,
-      id: `hack-clone-${Date.now()}`,
-      circuitId: `BC-CIRC-${Math.floor(1000 + Math.random() * 9000)}`,
-      title: `${hack.title} (Copy)`,
-      status: 'draft',
-      statusLabel: 'Draft',
-      isPublished: false
-    };
+  const handleDuplicate = async (hack) => {
+    try {
+      const cloned = {
+        ...hack,
+        circuitId: `BC-CIRC-${Math.floor(1000 + Math.random() * 9000)}`,
+        title: `${hack.title} (Copy)`,
+        status: 'draft',
+        statusLabel: 'Draft',
+        isPublished: false
+      };
+      delete cloned._id;
+      delete cloned.id;
 
-    onUpdateHackathons([cloned, ...hackathons]);
-    showToast?.(`Cloned "${hack.title}" as a draft!`);
+      const res = await hackathonsApi.createHackathon(cloned);
+      const saved = res.hackathon || res;
+      onUpdateHackathons([saved, ...hackathons]);
+      showToast?.(`Cloned "${hack.title}" as a draft in MongoDB!`);
+    } catch (err) {
+      console.error('Clone hackathon failed:', err);
+      showToast?.(`Clone failed: ${err.message}`);
+    }
   };
 
   // Quick Toggle Publish / Unpublish directly from table
-  const handleTogglePublish = (hack) => {
+  const handleTogglePublish = async (hack) => {
+    const targetId = hack._id || hack.id;
     const willBePublished = !hack.isPublished;
-    const updated = hackathons.map(h => {
-      if (h.id === hack.id) {
-        return {
-          ...h,
-          isPublished: willBePublished,
-          status: willBePublished ? (h.status === 'draft' ? 'open' : h.status) : 'draft',
-          statusLabel: willBePublished ? (h.status === 'draft' ? 'Registration open' : h.statusLabel) : 'Draft'
-        };
-      }
-      return h;
-    });
 
-    onUpdateHackathons(updated);
-    showToast?.(
-      willBePublished
-        ? `"${hack.title}" is now published and visible to students.`
-        : `"${hack.title}" converted to draft.`
-    );
+    try {
+      const res = await hackathonsApi.togglePublish(targetId, willBePublished);
+      const updatedHack = res.hackathon || {
+        ...hack,
+        isPublished: willBePublished,
+        status: willBePublished ? (hack.status === 'draft' ? 'open' : hack.status) : 'draft',
+        statusLabel: willBePublished ? (hack.status === 'draft' ? 'Registration open' : hack.statusLabel) : 'Draft'
+      };
+
+      const updated = hackathons.map(h => ((h._id === targetId || h.id === targetId) ? updatedHack : h));
+      onUpdateHackathons(updated);
+      showToast?.(
+        willBePublished
+          ? `"${hack.title}" published live in MongoDB and visible to students.`
+          : `"${hack.title}" saved as draft in MongoDB.`
+      );
+    } catch (err) {
+      console.error('Toggle publish failed:', err);
+      showToast?.(`Error updating status: ${err.message}`);
+    }
   };
 
   // Validate form fields
@@ -312,7 +326,7 @@ export default function AdminDashboard({
   };
 
   // Form Save Handler (Draft or Publish)
-  const handleSave = (shouldPublish) => {
+  const handleSave = async (shouldPublish) => {
     if (!validateForm()) {
       showToast?.('Please resolve the highlighted form errors.');
       return;
@@ -404,82 +418,98 @@ export default function AdminDashboard({
         }
       };
 
-      onUpdateHackathons([newHack, ...hackathons]);
-      showToast?.(`Hackathon "${newHack.title}" ${shouldPublish ? 'published live!' : 'saved as draft.'}`);
+      try {
+        const res = await hackathonsApi.createHackathon(newHack);
+        const savedHack = res.hackathon || res;
+        onUpdateHackathons([savedHack, ...hackathons]);
+        showToast?.(`Hackathon "${savedHack.title}" ${shouldPublish ? 'published live in MongoDB!' : 'saved as draft in MongoDB.'}`);
+      } catch (err) {
+        console.error('Failed to create hackathon:', err);
+        showToast?.(`Create error: ${err.message}`);
+      }
     } else {
-      // Update Existing
-      const updated = hackathons.map(h => {
-        if (h.id === editingId) {
-          return {
-            ...h,
-            title: formData.title.trim(),
-            subtitle: `Organized by ${formData.organizer.trim()}`,
-            organizer: {
-              ...(typeof h.organizer === 'object' ? h.organizer : {}),
-              name: formData.organizer.trim(),
-              website: formData.officialWebsite.trim() || ''
-            },
-            description: formData.description.trim(),
-            officialWebsite: formData.officialWebsite.trim(),
-            officialRegistrationLink: formData.registrationLink.trim(),
-            registrationLink: formData.registrationLink.trim(),
-            registrationDeadline: deadlineString,
-            regDeadlineDate: formData.regDeadlineDate,
-            regDeadlineTime: formData.regDeadlineTime,
-            startDate: startFormatted,
-            startDateRaw: formData.startDate,
-            startTimeRaw: formData.startTime,
-            endDate: endFormatted,
-            endDateRaw: formData.endDate,
-            endTimeRaw: formData.endTime,
-            dates: datesString,
-            mode: formData.mode,
-            location: locationString,
-            registrationFee: feeString,
-            feeType: formData.feeType,
-            feeAmount: formData.feeAmount,
-            minTeamSize: formData.minTeamSize,
-            maxTeamSize: formData.maxTeamSize,
-            teamSize: teamSizeString,
-            squadLimits: teamSizeString,
-            eligibility: formData.eligibility.trim(),
-            tracks: trackKeys,
-            trackLabels: tracksClean,
-            prizePool: (formData.prizePool.trim() || h.prizePool || '₹0').replace(/\$/g, '₹'),
-            rules: rulesClean.length > 0 ? rulesClean : h.rules,
-            officialSource: verifiedByVal,
-            image: formData.image || h.image || '',
-            heroImage: formData.image || h.heroImage || '',
-            coverImage: formData.image || h.coverImage || '',
-            logo: formData.image || h.logo || '',
-            status: shouldPublish ? (h.status === 'draft' ? 'open' : h.status) : 'draft',
-            statusLabel: shouldPublish ? (h.status === 'draft' ? 'Registration open' : h.statusLabel) : 'Draft',
-            isPublished: shouldPublish,
-            lastVerified: {
-              verifiedAt: verifiedDateVal,
-              verifier: verifiedByVal
-            }
-          };
+      // Update Existing in MongoDB
+      const updatePayload = {
+        title: formData.title.trim(),
+        subtitle: `Organized by ${formData.organizer.trim()}`,
+        organizer: {
+          name: formData.organizer.trim(),
+          website: formData.officialWebsite.trim() || ''
+        },
+        description: formData.description.trim(),
+        officialWebsite: formData.officialWebsite.trim(),
+        officialRegistrationLink: formData.registrationLink.trim(),
+        registrationLink: formData.registrationLink.trim(),
+        registrationDeadline: deadlineString,
+        regDeadlineDate: formData.regDeadlineDate,
+        regDeadlineTime: formData.regDeadlineTime,
+        startDate: startFormatted,
+        startDateRaw: formData.startDate,
+        startTimeRaw: formData.startTime,
+        endDate: endFormatted,
+        endDateRaw: formData.endDate,
+        endTimeRaw: formData.endTime,
+        dates: datesString,
+        mode: formData.mode,
+        location: locationString,
+        registrationFee: feeString,
+        feeType: formData.feeType,
+        feeAmount: formData.feeAmount,
+        minTeamSize: formData.minTeamSize,
+        maxTeamSize: formData.maxTeamSize,
+        teamSize: teamSizeString,
+        squadLimits: teamSizeString,
+        eligibility: formData.eligibility.trim(),
+        tracks: trackKeys,
+        trackLabels: tracksClean,
+        prizePool: (formData.prizePool.trim() || '₹0').replace(/\$/g, '₹'),
+        rules: rulesClean.length > 0 ? rulesClean : emptyForm.rules,
+        officialSource: verifiedByVal,
+        image: formData.image || '',
+        heroImage: formData.image || '',
+        coverImage: formData.image || '',
+        logo: formData.image || '',
+        status: shouldPublish ? 'open' : 'draft',
+        statusLabel: shouldPublish ? 'Registration open' : 'Draft',
+        isPublished: shouldPublish,
+        lastVerified: {
+          verifiedAt: verifiedDateVal,
+          verifier: verifiedByVal
         }
-        return h;
-      });
+      };
 
-      onUpdateHackathons(updated);
-      showToast?.(`Updated "${formData.title}" ${shouldPublish ? 'and published!' : 'as draft.'}`);
+      try {
+        const res = await hackathonsApi.updateHackathon(editingId, updatePayload);
+        const savedHack = res.hackathon || updatePayload;
+        const updated = hackathons.map(h => ((h._id === editingId || h.id === editingId) ? { ...h, ...savedHack } : h));
+        onUpdateHackathons(updated);
+        showToast?.(`Updated "${formData.title}" ${shouldPublish ? 'and published in MongoDB!' : 'as draft in MongoDB.'}`);
+      } catch (err) {
+        console.error('Failed to update hackathon:', err);
+        showToast?.(`Update error: ${err.message}`);
+      }
     }
 
     setView('list');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Confirm Delete
-  const handleConfirmDelete = () => {
+  // Confirm Delete in MongoDB
+  const handleConfirmDelete = async () => {
     if (!hackToDelete) return;
+    const targetId = hackToDelete._id || hackToDelete.id;
     const title = hackToDelete.title;
-    const updated = hackathons.filter(h => h.id !== hackToDelete.id);
-    onUpdateHackathons(updated);
-    setHackToDelete(null);
-    showToast?.(`Deleted "${title}" from circuit database.`);
+
+    try {
+      await hackathonsApi.deleteHackathon(targetId);
+      const updated = hackathons.filter(h => (h._id !== targetId && h.id !== targetId));
+      onUpdateHackathons(updated);
+      setHackToDelete(null);
+      showToast?.(`Deleted "${title}" from MongoDB database.`);
+    } catch (err) {
+      console.error('Delete failed:', err);
+      showToast?.(`Delete failed: ${err.message}`);
+    }
   };
 
   // Tracks chip actions
@@ -807,7 +837,7 @@ export default function AdminDashboard({
                   const normMode = normalizeMode(h.mode);
 
                   return (
-                    <tr key={h.id} className="hover:bg-surface-container-low/40 transition-colors">
+                    <tr key={h._id || h.id} className="hover:bg-surface-container-low/40 transition-colors">
                       {/* Name & Mode */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-start gap-2.5">
@@ -939,7 +969,7 @@ export default function AdminDashboard({
 
             return (
               <div
-                key={h.id}
+                key={h._id || h.id}
                 className="bg-surface-container-lowest rounded-2xl p-4 border border-surface-container-high shadow-xs space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
@@ -1086,16 +1116,16 @@ export default function AdminDashboard({
                 </span>
                 <div>
                   <h4 className="font-bold text-on-surface text-base">
-                    Reset Circuit Data to Defaults?
+                    Re-synchronize with MongoDB Atlas?
                   </h4>
                   <p className="text-xs text-on-surface-variant mt-0.5">
-                    Restore original mock hackathons (TreeHacks, CalHacks, etc.)
+                    Refresh live hackathon records from buildcrew_db database
                   </p>
                 </div>
               </div>
 
               <p className="text-xs text-on-surface-variant leading-relaxed">
-                Any custom hackathons added, edited, or deleted during this session will be reverted to the original platform seed list.
+                Fetch the latest circuit state directly from the MongoDB backend database to ensure all records match platform truth.
               </p>
 
               <div className="flex items-center justify-end gap-2.5 pt-2">
@@ -1111,12 +1141,17 @@ export default function AdminDashboard({
                   type="button"
                   onClick={() => {
                     setIsResetConfirmOpen(false);
-                    onResetDefaults?.();
+                    if (onRefreshHackathons) {
+                      onRefreshHackathons();
+                      showToast?.('Re-synchronized circuit records from MongoDB Atlas.');
+                    } else {
+                      onResetDefaults?.();
+                    }
                   }}
                   className="px-4 py-2 rounded-xl bg-secondary hover:bg-secondary-fixed text-on-secondary font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <span className="material-symbols-outlined text-base">check</span>
-                  <span>Yes, Reset to Defaults</span>
+                  <span className="material-symbols-outlined text-base">sync</span>
+                  <span>Sync from MongoDB</span>
                 </button>
               </div>
             </div>
@@ -1142,7 +1177,7 @@ export default function AdminDashboard({
   // ========================================================
   // VIEW 2: PROFESSIONAL HACKATHON ADD / EDIT FORM
   // ========================================================
-  const currentEditingHack = isEditing ? hackathons.find(h => h.id === editingId) : null;
+  const currentEditingHack = isEditing ? hackathons.find(h => (h._id === editingId || h.id === editingId)) : null;
   const isCurrentPublished = currentEditingHack ? currentEditingHack.isPublished !== false : false;
 
   return (

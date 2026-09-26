@@ -9,7 +9,8 @@ export default function HackathonSquadUpModal({
   onApplySquad,
   onInviteBuilder,
   onCreateSquad,
-  showToast
+  showToast,
+  currentUser
 }) {
   const [activeTab, setActiveTab] = useState('find-teammates'); // 'find-teammates' | 'teams' | 'create'
   const [appliedTeams, setAppliedTeams] = useState({});
@@ -31,16 +32,17 @@ export default function HackathonSquadUpModal({
   // Filter squads relevant to this hackathon
   const hackathonTeams = projects.filter(p => {
     const titleMatch = p.categoryBadge?.toLowerCase().includes(hackathon.title.toLowerCase().split(' ')[0].toLowerCase());
-    const hackNovaMatch = hackathon.id.includes('hacknova') && (p.categoryBadge?.includes('HackNova') || p.id === 'studysync-ai');
-    const treeHacksMatch = hackathon.id.includes('treehacks') && (p.categoryBadge?.includes('TreeHacks') || p.id === 'studysync-ai');
+    const hackNovaMatch = (hackathon._id || hackathon.id || '').includes('hacknova') && (p.categoryBadge?.includes('HackNova') || p.id === 'studysync-ai');
+    const treeHacksMatch = (hackathon._id || hackathon.id || '').includes('treehacks') && (p.categoryBadge?.includes('TreeHacks') || p.id === 'studysync-ai');
     return titleMatch || hackNovaMatch || treeHacksMatch || true;
   }).slice(0, 4);
 
   const handleApply = (team) => {
-    setAppliedTeams(prev => ({ ...prev, [team.id]: true }));
+    const teamId = team._id || team.id;
+    setAppliedTeams(prev => ({ ...prev, [teamId]: true }));
     if (onApplySquad) {
       onApplySquad({
-        projectId: team.id,
+        projectId: teamId,
         projectTitle: team.title,
         role: team.openVacancies?.[0]?.title || 'Core Team Member',
         submittedAt: 'Just now',
@@ -56,9 +58,10 @@ export default function HackathonSquadUpModal({
   };
 
   const handleInvite = (builder) => {
-    setInvitedBuilders(prev => ({ ...prev, [builder.id]: true }));
+    const bId = builder._id || builder.id;
+    setInvitedBuilders(prev => ({ ...prev, [bId]: true }));
     if (onInviteBuilder) {
-      onInviteBuilder(builder.name);
+      onInviteBuilder(builder);
     }
     setTeamFormedNotice(`Invitation sent to ${builder.name}! You can now coordinate your squad and complete official registration.`);
     if (showToast) {
@@ -88,14 +91,14 @@ export default function HackathonSquadUpModal({
         imageTag: selectedTrack || 'Hackathon Sprint',
         techStack: ['React', 'FastAPI', 'Python', 'Tailwind'],
         rolesNeeded: rolesNeeded.split(',').map(r => r.trim()).filter(Boolean),
-        campus: 'stanford',
+        campus: currentUser?.campus || currentUser?.university || 'stanford',
         filledCount: 1,
         totalCapacity: 4,
         lead: {
-          name: 'Jayanth V.',
-          university: 'Stanford CS \'26',
-          roleTitle: 'Team Creator',
-          avatar: 'https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG'
+          name: currentUser?.name || 'Student Builder',
+          university: currentUser?.university || currentUser?.college || 'Collegiate Campus',
+          roleTitle: currentUser?.roleTitle || 'Squad Creator',
+          avatar: currentUser?.avatar || currentUser?.profileImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
         },
         openVacancies: rolesNeeded.split(',').map((r, i) => ({
           id: `vac-${i}`,

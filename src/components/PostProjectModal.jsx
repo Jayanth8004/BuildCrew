@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-export default function PostProjectModal({ isOpen, onClose, onAddProject }) {
+export default function PostProjectModal({ isOpen, onClose, onAddProject, currentUser }) {
   const [title, setTitle] = useState('');
   const [tagline, setTagline] = useState('');
   const [type, setType] = useState('hackathon');
   const [techStackInput, setTechStackInput] = useState('React 19, FastAPI, Tailwind');
   const [rolesInput, setRolesInput] = useState('frontend, ai');
-  const [campus, setCampus] = useState('stanford');
+  const [campus, setCampus] = useState(currentUser?.campus || currentUser?.university || 'stanford');
   const [totalCapacity, setTotalCapacity] = useState(4);
   const [categoryBadge, setCategoryBadge] = useState('HackNova 2026');
 
@@ -15,7 +15,6 @@ export default function PostProjectModal({ isOpen, onClose, onAddProject }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const newProject = {
-      id: `proj-${Date.now()}`,
       title,
       fullTitle: `${title} — Collegiate Collaboration Sprint`,
       tagline,
@@ -30,15 +29,15 @@ export default function PostProjectModal({ isOpen, onClose, onAddProject }) {
       imageTag: 'Collegiate Sprint',
       techStack: techStackInput.split(',').map(s => s.trim()).filter(Boolean),
       rolesNeeded: rolesInput.split(',').map(s => s.trim()).filter(Boolean),
-      campus,
+      campus: campus.toLowerCase(),
       filledCount: 1,
       totalCapacity: Number(totalCapacity) || 4,
       lead: {
-        name: 'Jayanth V.',
-        university: 'Stanford CS \'26',
-        program: 'Stanford University',
-        roleTitle: 'Project Creator',
-        avatar: 'https://lh3.googleusercontent.com/aida/AEtjO1U9z5PpV3Oif5HhhByVbwFRYk7HWVBiaoD0VNB5HJ0qL8NTgyV9zdv3Z0kb1LWlSYbxqz2J0ARPqkm6aWj8V5UZtnnkauBTB6e-Pvqfvt90EnUwriRM5A97Q9V9iZdlRCjtwercmGE3G05yZRlXzzCm7g9O5kGcUVghkc3NcvdMvplHHEzkzeKbC2NS5k3KzdHOvmlEJGz_SqF5Q0Kz5kl0mRpG_0NW8L5Hs51VIWTludWsf0Raog0dXhpSS-eK4_xEupfb60OG'
+        name: currentUser?.name || 'Student Builder',
+        university: currentUser?.university || currentUser?.college || 'Collegiate Campus',
+        program: currentUser?.university || currentUser?.college || 'Undergraduate Member',
+        roleTitle: currentUser?.roleTitle || 'Squad Creator',
+        avatar: currentUser?.avatar || currentUser?.profileImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBirUkNQSo04g_tpOZ4BCEqxhIS1X_JeuPCz7HOuaAg-iBZjD079_5Kw5JH_beVshiDR-hGgf25xxHWHIOiujBaIs-w4YI0ynogQcCH-ChPBSE6SQTry_Dqz24c73Jk7DeMfwiJy0dTYKPf4u-A8WVNw1oUjo6ssG1p_WKvOPmg1OVEotk4p7HgClGq2FLb6UoHwks2MTWuddYD2hBI5uOVcjsqA5gleuV5YGmocfJVn1MpOeHrvsPd'
       },
       openVacancies: [
         {

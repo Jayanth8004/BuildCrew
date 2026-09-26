@@ -5,7 +5,10 @@ export default function Header({
   searchQuery, 
   setSearchQuery,
   onSearchFocus,
-  notificationCount = 2,
+  notificationCount = 0,
+  notifications = [],
+  onMarkRead,
+  onMarkAllRead,
   onNavigateProfile,
   currentUser,
   onLogout,
@@ -139,30 +142,49 @@ export default function Header({
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container-high p-space-md z-50 animate-modal">
+            <div className="absolute right-0 mt-2 w-80 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container-high p-space-md z-50 animate-modal max-h-96 overflow-y-auto">
               <div className="flex items-center justify-between pb-2 border-b border-surface-container-low mb-3">
                 <span className="font-title-sm text-title-sm font-bold text-on-surface">Notifications</span>
-                <span className="font-label-sm text-label-sm text-secondary font-semibold">{notificationCount} new</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-label-sm text-label-sm text-secondary font-semibold">{notificationCount} new</span>
+                  {notificationCount > 0 && onMarkAllRead && (
+                    <button
+                      type="button"
+                      onClick={onMarkAllRead}
+                      className="text-[11px] text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="space-y-3 text-body-sm text-body-sm">
-                <div className="p-2.5 rounded-xl bg-surface-container-low">
-                  <div className="flex items-center justify-between text-on-surface font-semibold text-title-sm mb-1">
-                    <span>Application Dispatched</span>
-                    <span className="text-[11px] text-outline font-normal">Just now</span>
+              <div className="space-y-2.5 text-body-sm">
+                {notifications.length === 0 ? (
+                  <div className="py-6 text-center text-on-surface-variant text-xs">
+                    <span className="material-symbols-outlined text-2xl text-outline mb-1">notifications_none</span>
+                    <p>No new notifications</p>
                   </div>
-                  <p className="text-on-surface-variant text-body-sm">
-                    Maya Chen was notified of your interest in <strong className="text-on-surface">StudySync AI</strong>.
-                  </p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-surface-container-low">
-                  <div className="flex items-center justify-between text-on-surface font-semibold text-title-sm mb-1">
-                    <span>Squad Invite</span>
-                    <span className="text-[11px] text-outline font-normal">2h ago</span>
-                  </div>
-                  <p className="text-on-surface-variant text-body-sm">
-                    Rahul S. invited you to review the <strong className="text-on-surface">Campus Flow</strong> roadmap.
-                  </p>
-                </div>
+                ) : (
+                  notifications.map((n, idx) => (
+                    <div
+                      key={n._id || idx}
+                      onClick={() => onMarkRead && onMarkRead(n._id)}
+                      className={`p-2.5 rounded-xl cursor-pointer transition-colors ${
+                        n.read ? 'bg-surface-container-low/60 opacity-70' : 'bg-surface-container-low hover:bg-surface-container'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-on-surface font-semibold text-title-sm mb-1">
+                        <span className="truncate pr-1">{n.title}</span>
+                        <span className="text-[10px] text-outline font-normal shrink-0">
+                          {n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent'}
+                        </span>
+                      </div>
+                      <p className="text-on-surface-variant text-body-sm line-clamp-2">
+                        {n.message}
+                      </p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -183,16 +205,18 @@ export default function Header({
             <div className="absolute right-0 mt-2 w-64 bg-surface-container-lowest rounded-2xl shadow-xl border border-surface-container-high p-3 z-50 animate-modal">
               <div className="p-2.5 rounded-xl bg-surface-container-low mb-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-on-surface">{currentUser?.name || 'Jayanth V.'}</span>
+                  <span className="font-bold text-xs text-on-surface">{currentUser?.name || 'Account'}</span>
                   <span className={`px-2 py-0.2 rounded-full text-[10px] font-extrabold uppercase ${
                     currentUser?.role === 'admin' ? 'bg-secondary text-on-secondary' : 'bg-secondary-fixed text-on-secondary-fixed'
                   }`}>
                     {currentUser?.role === 'admin' ? 'Admin' : 'Student'}
                   </span>
                 </div>
-                <div className="text-[11px] text-on-surface-variant truncate mt-0.5">
-                  {currentUser?.email || 'jayanth@stanford.edu'}
-                </div>
+                {currentUser?.email && (
+                  <div className="text-[11px] text-on-surface-variant truncate mt-0.5">
+                    {currentUser.email}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1 text-xs">
