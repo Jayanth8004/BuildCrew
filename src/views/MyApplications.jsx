@@ -34,6 +34,7 @@ export default function MyApplications({ applications, onSelectProjectById }) {
               const applicationNote = app.note || app.message || '';
               const submittedDate = app.submittedAt || (app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'Recently');
 
+<<<<<<< HEAD
               return (
                 <div
                   key={app._id || app.id || idx}
@@ -70,6 +71,16 @@ export default function MyApplications({ applications, onSelectProjectById }) {
                       </button>
                     )}
                   </div>
+=======
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onSelectProjectById(app.projectId || app.project?._id || app.project)}
+                    className="py-2 px-4 rounded-xl bg-surface-container-lowest hover:bg-surface text-on-surface font-title-sm text-title-sm shadow-sm transition-all cursor-pointer font-medium"
+                  >
+                    View Project
+                  </button>
+>>>>>>> 3d61564a6a9ef8106187e4ce1f697519b02f3748
                 </div>
               );
             })}

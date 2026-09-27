@@ -88,6 +88,7 @@ router.put("/:id", authenticateUser, async (req, res) => {
 
     const allowedUpdates = [
       "name",
+      "email",
       "college",
       "university",
       "branch",
@@ -101,6 +102,7 @@ router.put("/:id", authenticateUser, async (req, res) => {
       "lookingFor",
       "github",
       "linkedin",
+      "showEmailToTeam",
       "profileImage",
       "avatar",
       "roleTitle",
@@ -115,6 +117,10 @@ router.put("/:id", authenticateUser, async (req, res) => {
             : typeof req.body[key] === "string"
             ? req.body[key].split(",").map((s) => s.trim()).filter(Boolean)
             : [];
+        } else if (key === "showEmailToTeam") {
+          updates[key] = Boolean(req.body[key]);
+        } else if (key === "email") {
+          updates[key] = String(req.body[key]).trim().toLowerCase();
         } else {
           updates[key] = req.body[key];
         }
