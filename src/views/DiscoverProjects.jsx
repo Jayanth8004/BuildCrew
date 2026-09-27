@@ -38,34 +38,34 @@ export default function DiscoverProjects({
 
   // Derive unique real campuses dynamically from projects in MongoDB
   const availableCampuses = useMemo(() => {
-    return Array.from(new Set(projects.map(p => p.campus).filter(Boolean)));
+    return Array.from(new Set((projects || []).map(p => p.campus).filter(Boolean)));
   }, [projects]);
 
   // Filter & Sort logic
   const filteredProjects = useMemo(() => {
-    let result = projects.filter(p => {
+    let result = (projects || []).filter(p => {
       // Search input matching
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchTitle = p.title.toLowerCase().includes(q);
-        const matchTagline = p.tagline.toLowerCase().includes(q);
-        const matchStack = p.techStack.some(t => t.toLowerCase().includes(q));
-        const matchLead = p.lead?.name.toLowerCase().includes(q) || p.lead?.university.toLowerCase().includes(q);
-        const matchRole = p.openVacancies?.some(v => v.title.toLowerCase().includes(q) || v.track?.toLowerCase().includes(q));
+        const matchTitle = p.title?.toLowerCase().includes(q);
+        const matchTagline = p.tagline?.toLowerCase().includes(q);
+        const matchStack = Array.isArray(p.techStack) && p.techStack.some(t => typeof t === 'string' && t.toLowerCase().includes(q));
+        const matchLead = p.lead?.name?.toLowerCase().includes(q) || p.lead?.university?.toLowerCase().includes(q) || p.lead?.program?.toLowerCase().includes(q);
+        const matchRole = Array.isArray(p.openVacancies) && p.openVacancies.some(v => v.title?.toLowerCase().includes(q) || v.track?.toLowerCase().includes(q));
         if (!matchTitle && !matchTagline && !matchStack && !matchLead && !matchRole) return false;
       }
 
       // Tech stack dropdown
       if (techStackFilter) {
-        const matchesStack = p.techStack.some(t => 
-          t.toLowerCase().includes(techStackFilter.toLowerCase())
+        const matchesStack = Array.isArray(p.techStack) && p.techStack.some(t => 
+          typeof t === 'string' && t.toLowerCase().includes(techStackFilter.toLowerCase())
         );
         if (!matchesStack) return false;
       }
 
       // Role filter
       if (roleFilter) {
-        if (!p.rolesNeeded.includes(roleFilter)) return false;
+        if (!Array.isArray(p.rolesNeeded) || !p.rolesNeeded.includes(roleFilter)) return false;
       }
 
       // Type filter

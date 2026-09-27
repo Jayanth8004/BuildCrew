@@ -44,6 +44,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET /api/users/all - Fetch all users alias (prevents conflict with /:id)
+router.get("/all", async (req, res) => {
+  try {
+    const users = await User.find({}).sort({ createdAt: -1 });
+    return res.json(users);
+  } catch (err) {
+    return res.status(500).json({ error: "Could not retrieve users.", details: err.message });
+  }
+});
+
 // GET /api/users/:id - Fetch individual student profile
 router.get("/:id", async (req, res) => {
   try {
